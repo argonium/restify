@@ -37,7 +37,7 @@ public final class Restify
   /**
    * The status bar.
    */
-  private JLabel statusBar = null;
+  private StatusBar statusBar = null;
   
   /**
    * The window state (position and size).
@@ -150,12 +150,8 @@ public final class Restify
   private void initStatusBar()
   {
     // Instantiate the status bar
-    statusBar = new JLabel("Ready");
-    
-    // Set the color and border
-    statusBar.setForeground(Color.black);
-    statusBar.setBorder(new CompoundBorder(new EmptyBorder(2, 2, 2, 2),
-                              new SoftBevelBorder(SoftBevelBorder.LOWERED)));
+    // statusBar = new JLabel("Ready");
+    statusBar = new StatusBar();
     
     // Add to the content pane
     frame.getContentPane().add(statusBar, BorderLayout.SOUTH);
