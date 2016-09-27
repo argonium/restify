@@ -2,6 +2,7 @@ package io.miti.restify.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -49,6 +50,8 @@ public final class Restify
    */
   private JPanel appPanel = null;
   
+  private JTabbedPane tp = null;
+  
   
   /**
    * Default constructor.
@@ -79,6 +82,9 @@ public final class Restify
     // Display the window.
     frame.pack();
     frame.setVisible(true);
+    
+    Component tab = tp.getComponentAt(1);
+    ((LoginTab) tp.getComponentAt(1)).setDivider();
   }
   
   
@@ -132,7 +138,7 @@ public final class Restify
     appPanel.setBackground(Color.WHITE);
     
     // Populate the tabbed panes
-    JTabbedPane tp = new JTabbedPane();
+    tp = new JTabbedPane();
     tp.add("Servers", new ServersTab());
     tp.add("Login", new LoginTab());
     tp.add("Performance", new PerfTab());
