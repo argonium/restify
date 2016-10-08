@@ -3,6 +3,7 @@ package io.miti.restify.gui;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -10,6 +11,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 
 public class LoginTab extends JPanel
@@ -26,10 +28,32 @@ public class LoginTab extends JPanel
   private void buildPage() {
     
     final JPanel topPanel = getTopPanel();
-    JPanel bottomPanel = new JPanel(new BorderLayout());
-    bottomPanel.add(new JButton("bottom"), BorderLayout.CENTER);
+    final JPanel bottomPanel = getBottomPanel();
     sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(topPanel), new JScrollPane(bottomPanel));
     add(sp, BorderLayout.CENTER);
+  }
+  
+  private JPanel getBottomPanel() {
+    
+    JTabbedPane tp = new JTabbedPane();
+    tp.add("Request", getRequestPanel());
+    tp.add("Response", getResponsePanel());
+    
+    JPanel bottomPanel = new JPanel(new BorderLayout());
+    bottomPanel.add(tp, BorderLayout.CENTER);
+    return bottomPanel;
+  }
+  
+  private JPanel getRequestPanel() {
+    // TODO
+    JPanel request = new JPanel();
+    return request;
+  }
+  
+  private JPanel getResponsePanel() {
+    // TODO
+    JPanel response = new JPanel();
+    return response;
   }
   
   private JPanel getTopPanel() {
@@ -38,6 +62,7 @@ public class LoginTab extends JPanel
     GridBagConstraints c = new GridBagConstraints();
     c.gridx = 0;
     c.gridy = 0;
+    c.insets = new Insets(2, 2, 2, 2);
     c.anchor = GridBagConstraints.LINE_START;
     topPanel.add(new JLabel("URL:"), c);
     
