@@ -25,6 +25,14 @@
            debug="on" optimize="on" deprecation="off" >
       <classpath>
          <pathelement path="${deploy.home}"/>
+         <pathelement path="libs/commons-logging-1.2.jar"/>
+         <pathelement path="libs/httpcore-nio-4.3.3.jar"/>
+         <pathelement path="libs/httpasyncclient-4.0.2.jar"/>
+         <pathelement path="libs/httpmime-4.3.6.jar"/>
+         <pathelement path="libs/httpclient-4.3.6.jar"/>
+         <pathelement path="libs/json.jar"/>
+         <pathelement path="libs/httpcore-4.3.3.jar"/>
+         <pathelement path="libs/unirest-java-1.4.9.jar"/>
       </classpath>
     </javac>
   </target>
@@ -36,6 +44,7 @@
       <manifest>
         <attribute name="Built-By" value="Mike Wallace"/>
         <attribute name="Main-Class" value="io.miti.restify.gui.Restify"/>
+        <attribute name="Class-Path" value="commons-logging-1.2.jar httpcore-nio-4.3.3.jar httpasyncclient-4.0.2.jar httpmime-4.3.6.jar httpclient-4.3.6.jar json.jar httpcore-4.3.3.jar unirest-java-1.4.9.jar" />
       </manifest>
     </jar>
   </target>
