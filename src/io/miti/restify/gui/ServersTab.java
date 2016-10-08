@@ -1,10 +1,8 @@
 package io.miti.restify.gui;
 
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -25,7 +23,7 @@ public class ServersTab extends JPanel
     servers[0] = "Local";
     servers[1] = "Staging";
     servers[2] = "Productioin";
-    JComboBox cbServers = new JComboBox(servers);
+    JComboBox<String> cbServers = new JComboBox<>(servers);
     
     GridBagConstraints c = new GridBagConstraints();
     c.gridx = 0;

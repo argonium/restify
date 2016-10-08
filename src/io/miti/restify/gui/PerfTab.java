@@ -1,6 +1,5 @@
 package io.miti.restify.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

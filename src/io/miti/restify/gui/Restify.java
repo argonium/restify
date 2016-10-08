@@ -2,17 +2,12 @@ package io.miti.restify.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.SoftBevelBorder;
 
 import io.miti.restify.util.Utility;
 import io.miti.restify.util.WindowState;
@@ -52,6 +47,8 @@ public final class Restify
   
   private JTabbedPane tp = null;
   
+  private static final Restify app = new Restify();
+  
   
   /**
    * Default constructor.
@@ -59,6 +56,10 @@ public final class Restify
   private Restify()
   {
     super();
+  }
+  
+  public static Restify getApp() {
+    return app;
   }
   
   
@@ -83,8 +84,11 @@ public final class Restify
     frame.pack();
     frame.setVisible(true);
     
-    Component tab = tp.getComponentAt(1);
     ((LoginTab) tp.getComponentAt(1)).setDivider();
+  }
+  
+  public StatusBar getStatusBar() {
+    return statusBar;
   }
   
   
@@ -207,7 +211,7 @@ public final class Restify
       public void run()
       {
         // Run the application
-        new Restify().createGUI();
+        app.createGUI();
       }
     });
   }

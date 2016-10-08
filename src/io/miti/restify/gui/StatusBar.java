@@ -32,7 +32,7 @@ public final class StatusBar extends JPanel {
   private void buildPanel() {
     
     leftMsg = new JLabel("No Server");
-    rightMsg = new JLabel("User: n/a", SwingConstants.RIGHT);
+    rightMsg = new JLabel("No User", SwingConstants.RIGHT);
     
     add(leftMsg, BorderLayout.WEST);
     add(rightMsg, BorderLayout.EAST);    
@@ -44,10 +44,18 @@ public final class StatusBar extends JPanel {
   }
   
   public void setServerMsg(final String msg) {
-    leftMsg.setText(msg);
+    if ((msg == null) || msg.isEmpty()) {
+      leftMsg.setText("No Server");
+    } else {
+      leftMsg.setText("Server: " + msg);
+    }
   }
   
   public void setUserMsg(final String msg) {
-    rightMsg.setText(msg);
+    if ((msg == null) || msg.isEmpty()) {
+      rightMsg.setText("No User");
+    } else {
+      rightMsg.setText("User: " + msg);
+    }
   }
 }

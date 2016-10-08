@@ -876,4 +876,15 @@ public final class Utility
     int mins = getStringAsInteger(time.substring(colonIndex + 1), 0, 0);
     return (hrs + mins);
   }
+  
+  public static boolean anyAreEmpty(String... words) {
+    
+    for (String word : words) {
+      if ((word == null) || word.isEmpty()) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
 }
