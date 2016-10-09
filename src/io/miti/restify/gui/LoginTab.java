@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -18,6 +19,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.mashape.unirest.http.Headers;
@@ -44,6 +46,14 @@ public class LoginTab extends JPanel
   private JTextField tfPassword;
 
   private JTextField tfCookie;
+  
+  private JTextArea taRequest;
+  
+  private JTextArea taResponse;
+  
+  private static final String usernameField = "username";
+  
+  private static final String passwordField = "password";
 
   public LoginTab() {
     super(new BorderLayout());
@@ -70,14 +80,18 @@ public class LoginTab extends JPanel
   }
   
   private JPanel getRequestPanel() {
-    // TODO
-    JPanel request = new JPanel();
+    
+    JPanel request = new JPanel(new BorderLayout());
+    taRequest = new JTextArea();
+    request.add(new JScrollPane(taRequest), BorderLayout.CENTER);
     return request;
   }
   
   private JPanel getResponsePanel() {
-    // TODO
-    JPanel response = new JPanel();
+    
+    JPanel response = new JPanel(new BorderLayout());
+    taResponse = new JTextArea();
+    response.add(new JScrollPane(taResponse), BorderLayout.CENTER);
     return response;
   }
   
@@ -99,6 +113,7 @@ public class LoginTab extends JPanel
     c.gridx = 5;
     c.gridwidth = 1;
     cbAutoSignIn = new JCheckBox("Auto Sign-In");
+    cbAutoSignIn.setSelected(true);
     topPanel.add(cbAutoSignIn, c);
     
     c.gridy = 1;
@@ -185,11 +200,17 @@ public class LoginTab extends JPanel
   private void loginUser(String url, String username, String password) {
 
     sessionCookie = null;
+    taRequest.setText("");
+    taResponse.setText("");
     try {
       HttpResponse<String> response = Unirest.post(url)
-          .field("username", username)
-          .field("password", password).asString();
+          .field(usernameField, username)
+          .field(passwordField, password).asString();
       
+      taRequest.setText(getURLRequest(url, username, password.length()));
+      taResponse.setText(getURLResponse(response));
+      
+      // Check the response status
       final int status = response.getStatus();
       if (status != 200) {
         JOptionPane.showMessageDialog(this, "Login failed", "Error", JOptionPane.WARNING_MESSAGE);
@@ -219,6 +240,46 @@ public class LoginTab extends JPanel
     }
   }
   
+  private String getURLResponse(HttpResponse<String> response) {
+    
+    StringBuilder sb = new StringBuilder();
+    
+    // Build the response text
+    sb.append(Integer.toString(response.getStatus()))
+      .append(" ").append(response.getStatusText())
+      .append("\n\n");
+    
+    Headers headers = response.getHeaders();
+    if ((headers == null) || headers.isEmpty()) {
+      sb.append("<NO HEADER>");
+    } else {
+      for (Entry<String, List<String>> entry : headers.entrySet()) {
+        for (String value : entry.getValue()) {
+          sb.append(entry.getKey()).append(": ").append(value).append("\n");
+        }
+      }
+    }
+    
+    return sb.toString();
+  }
+
+  private String getURLRequest(String url, String username, int length) {
+    
+    StringBuilder sb = new StringBuilder();
+    
+    // Build the URL and post body
+    sb.append("POST ").append(url).append('\n')
+      .append(usernameField).append("=").append(username)
+      .append("&").append(passwordField).append("=");
+    
+    // Hide the password
+    for (int i = 0; i < length; ++i) {
+      sb.append("*");
+    }
+    
+    return sb.toString();
+  }
+
   private void updateStatusBar() {
     final String serverName = (sessionCookie == null) ? null : tfUrl.getText();
     final String userName = (sessionCookie == null) ? null : tfUser.getText();
