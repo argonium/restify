@@ -236,7 +236,8 @@ public class LoginTab extends JPanel
         }
       }
     } catch (UnirestException e) {
-      e.printStackTrace();
+      // Show an error message
+      JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
     }
   }
   
