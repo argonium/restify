@@ -26,6 +26,10 @@ public final class ServerCache {
     return cache;
   }
   
+  public String getServerUrl(final String name) {
+    return map.get(name);
+  }
+  
   public void add(final String name, final String url) {
     map.put(name, url);
   }
@@ -42,5 +46,9 @@ public final class ServerCache {
         map.put(entry.getKey(), entry.getValue());
       }
     }
+  }
+
+  public void deleteServer(String selectedName) {
+    map.remove(selectedName);
   }
 }

@@ -29,9 +29,11 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 import io.miti.restify.util.Utility;
 
-public class LoginTab extends JPanel
+public class LoginTab
 {
-  private static final long serialVersionUID = 1L;
+  private static LoginTab loginTab;
+  
+  private JPanel loginPanel = null;
   
   private JSplitPane sp = null;
   
@@ -54,10 +56,21 @@ public class LoginTab extends JPanel
   private static final String usernameField = "username";
   
   private static final String passwordField = "password";
+  
+  private static final String LOGIN_URL = "login";
+  
+  static {
+    loginTab = new LoginTab();
+    loginTab.loginPanel = new JPanel(new BorderLayout());
+    loginTab.buildPage();
+  }
 
-  public LoginTab() {
-    super(new BorderLayout());
-    buildPage();
+  private LoginTab() {
+    super();
+  }
+  
+  public static LoginTab getInstance() {
+    return loginTab;
   }
   
   private void buildPage() {
@@ -65,7 +78,7 @@ public class LoginTab extends JPanel
     final JPanel topPanel = getTopPanel();
     final JPanel bottomPanel = getBottomPanel();
     sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(topPanel), new JScrollPane(bottomPanel));
-    add(sp, BorderLayout.CENTER);
+    loginPanel.add(sp, BorderLayout.CENTER);
   }
   
   private JPanel getBottomPanel() {
@@ -183,7 +196,7 @@ public class LoginTab extends JPanel
     final String user = tfUser.getText();
     final String pw = tfPassword.getText();
     if (Utility.anyAreEmpty(url, user, pw)) {
-      JOptionPane.showMessageDialog(this, "The URL, user and password must be provided", "Error", JOptionPane.WARNING_MESSAGE);
+      JOptionPane.showMessageDialog(loginPanel, "The URL, user and password must be provided", "Error", JOptionPane.WARNING_MESSAGE);
       return;
     }
     
@@ -213,10 +226,10 @@ public class LoginTab extends JPanel
       // Check the response status
       final int status = response.getStatus();
       if (status != 200) {
-        JOptionPane.showMessageDialog(this, "Login failed", "Error", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(loginPanel, "Login failed", "Error", JOptionPane.WARNING_MESSAGE);
         return;
       } else {
-        JOptionPane.showMessageDialog(this, "Login successful");
+        JOptionPane.showMessageDialog(loginPanel, "Login successful");
       }
       
       // Get the response headers so we can find the Set-Cookie value
@@ -237,7 +250,7 @@ public class LoginTab extends JPanel
       }
     } catch (UnirestException e) {
       // Show an error message
-      JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
+      JOptionPane.showMessageDialog(loginPanel, "Error: " + e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
     }
   }
   
@@ -295,11 +308,33 @@ public class LoginTab extends JPanel
   public static boolean isLoggedIn() {
     return (sessionCookie == null);
   }
+  
+  public JPanel getPanel() {
+    return loginPanel;
+  }
 
   /**
    * Move the divider bar to the center of the screen.
    */
   public void setDivider() {
     sp.setDividerLocation(0.5);
+  }
+
+  public void setUrlText(String selectedName) {
+    
+    if ((selectedName == null) || selectedName.trim().isEmpty()) {
+      tfUrl.setText("");
+    } else {
+      final String name = selectedName.trim();
+      StringBuilder sb = new StringBuilder(100);
+      if (!name.endsWith("/")) {
+        sb.append("/");
+      }
+      
+      // Add the endpoint for login
+      sb.append(LOGIN_URL);
+      
+      tfUrl.setText(sb.toString());
+    }
   }
 }

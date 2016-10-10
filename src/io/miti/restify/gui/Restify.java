@@ -84,7 +84,7 @@ public final class Restify
     frame.pack();
     frame.setVisible(true);
     
-    ((LoginTab) tp.getComponentAt(1)).setDivider();
+    LoginTab.getInstance().setDivider();
   }
   
   public StatusBar getStatusBar() {
@@ -144,7 +144,7 @@ public final class Restify
     // Populate the tabbed panes
     tp = new JTabbedPane();
     tp.add("Servers", new ServersTab());
-    tp.add("Login", new LoginTab());
+    tp.add("Login", LoginTab.getInstance().getPanel());
     tp.add("Performance", new PerfTab());
     tp.add("Console", new ConsoleTab());
     appPanel.add(tp, BorderLayout.CENTER);
