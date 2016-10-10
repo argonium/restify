@@ -320,13 +320,14 @@ public class LoginTab
     sp.setDividerLocation(0.5);
   }
 
-  public void setUrlText(String selectedName) {
+  public void setUrlText(String url) {
     
-    if ((selectedName == null) || selectedName.trim().isEmpty()) {
+    if ((url == null) || url.trim().isEmpty()) {
       tfUrl.setText("");
     } else {
-      final String name = selectedName.trim();
+      final String name = url.trim();
       StringBuilder sb = new StringBuilder(100);
+      sb.append(name);
       if (!name.endsWith("/")) {
         sb.append("/");
       }

@@ -5,6 +5,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -14,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import io.miti.restify.util.ServerCache;
+import io.miti.restify.util.Utility;
 
 public class ServersTab extends JPanel
 {
@@ -37,6 +40,11 @@ public class ServersTab extends JPanel
     String[] servers = new String[1];
     servers[0] = NO_OPTION;
     cbServers = new JComboBox<>(servers);
+    cbServers.addActionListener (new ActionListener () {
+      public void actionPerformed(ActionEvent e) {
+        updateDisplayedUrl();
+      }
+    });
     
     GridBagConstraints c = new GridBagConstraints();
     c.gridx = 0;
@@ -57,7 +65,7 @@ public class ServersTab extends JPanel
     
     JPanel pServer = new JPanel();
     JLabel lblTitle = new JLabel("URL: ");
-    lblUrl = new JLabel("<None selected>");
+    lblUrl = new JLabel();
     pServer.add(lblTitle);
     pServer.add(lblUrl);
     c.gridy++;
@@ -125,12 +133,17 @@ public class ServersTab extends JPanel
   
   private void getServerInfo(final boolean addServer) {
     
-    // TODO
-    final String selectedName = (String) cbServers.getSelectedItem();
-    System.out.println(selectedName);
+    // Check the selected server name
+    String selectedName = (String) cbServers.getSelectedItem();
+    selectedName = (selectedName.equals(NO_OPTION)) ? "" : selectedName;
     
     JTextField tfName = new JTextField(10);
     JTextField tfUrl = new JTextField(10);
+    
+    if (!addServer) {
+      tfName.setText(selectedName);
+      tfUrl.setText(ServerCache.getInstance().getServerUrl(selectedName));
+    }
 
     JPanel myPanel = new JPanel(new GridLayout(2, 2));
     myPanel.add(new JLabel("Name:"));
@@ -142,8 +155,19 @@ public class ServersTab extends JPanel
              "Please enter the server data", JOptionPane.OK_CANCEL_OPTION,
              JOptionPane.QUESTION_MESSAGE);
     
-    if (result == JOptionPane.OK_OPTION) {
-      // Add an entry with these values - tfName and tfUrl.getText()
+    // If the user pressed OK, and neither field is empty, then update the combo box
+    if (result == JOptionPane.OK_OPTION) {      
+      if (!Utility.anyAreEmpty(tfName.getText(), tfUrl.getText())) {
+        
+        // If editing, remove the map entry by name, in case the user renamed
+        // the server
+        if (!addServer) {
+          ServerCache.getInstance().deleteServer(selectedName);
+        }
+        
+        ServerCache.getInstance().add(tfName.getText(), tfUrl.getText());
+        updateCombo();
+      }
     }
   }
 
@@ -158,6 +182,38 @@ public class ServersTab extends JPanel
   }
   
   private void updateCombo() {
-    // TODO
+    
+    // Save the selected index, and remove everything from the combo
+    final int selectedIndex = cbServers.getSelectedIndex();
+    cbServers.removeAllItems();
+
+    // Add everything from the cache to the combo; if nothing
+    // in the cache, add NO_OPTION
+    Set<Entry<String, String>> map = ServerCache.getInstance().getMap();
+    if (map.isEmpty()) {
+      cbServers.addItem(NO_OPTION);
+    } else {
+      for (Entry<String, String> entry : map) {
+        cbServers.addItem(entry.getKey());
+      }
+    }
+    
+    // Select the same item (or the previous one, if it was deleted)
+    if (map.isEmpty()) {
+      cbServers.setSelectedIndex(0);
+    } else if (selectedIndex >= map.size()) {
+      cbServers.setSelectedIndex(map.size() - 1);
+    } else {
+      cbServers.setSelectedIndex(selectedIndex);
+    }
+    
+    // Update the buttons
+    updateButtons();
+  }
+
+  private void updateDisplayedUrl() {
+    final String selectedName = (String) cbServers.getSelectedItem();
+    String url = ServerCache.getInstance().getServerUrl(selectedName);
+    lblUrl.setText(url);
   }
 }
