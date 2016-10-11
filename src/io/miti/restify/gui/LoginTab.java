@@ -83,7 +83,7 @@ public class LoginTab
   
   private JPanel getBottomPanel() {
     
-    JTabbedPane tp = new JTabbedPane();
+    final JTabbedPane tp = new JTabbedPane();
     tp.add("Request", getRequestPanel());
     tp.add("Response", getResponsePanel());
     
@@ -96,6 +96,8 @@ public class LoginTab
     
     JPanel request = new JPanel(new BorderLayout());
     taRequest = new JTextArea();
+    taRequest.setWrapStyleWord(false);
+    taRequest.setLineWrap(true);
     request.add(new JScrollPane(taRequest), BorderLayout.CENTER);
     return request;
   }
@@ -104,6 +106,8 @@ public class LoginTab
     
     JPanel response = new JPanel(new BorderLayout());
     taResponse = new JTextArea();
+    taResponse.setWrapStyleWord(false);
+    taResponse.setLineWrap(true);
     response.add(new JScrollPane(taResponse), BorderLayout.CENTER);
     return response;
   }
@@ -207,7 +211,7 @@ public class LoginTab
     tfCookie.setText((sessionCookie == null) ? "" : sessionCookie);
     
     // Update the status bar
-    updateStatusBar();    
+    updateStatusBar();
   }
   
   private void loginUser(String url, String username, String password) {
@@ -220,17 +224,20 @@ public class LoginTab
           .field(usernameField, username)
           .field(passwordField, password).asString();
       
+      // Show the request and response fields
       taRequest.setText(getURLRequest(url, username, password.length()));
+      taRequest.setCaretPosition(0);
       taResponse.setText(getURLResponse(response));
+      taResponse.setCaretPosition(0);
       
       // Check the response status
       final int status = response.getStatus();
       if (status != 200) {
         JOptionPane.showMessageDialog(loginPanel, "Login failed", "Error", JOptionPane.WARNING_MESSAGE);
         return;
-      } else {
-        JOptionPane.showMessageDialog(loginPanel, "Login successful");
       }
+      
+      // JOptionPane.showMessageDialog(loginPanel, "Login successful", "Success", JOptionPane.INFORMATION_MESSAGE);
       
       // Get the response headers so we can find the Set-Cookie value
       // (used to authenticate later calls to the server)
@@ -254,7 +261,7 @@ public class LoginTab
     }
   }
   
-  private String getURLResponse(HttpResponse<String> response) {
+  private static String getURLResponse(HttpResponse<String> response) {
     
     StringBuilder sb = new StringBuilder();
     
