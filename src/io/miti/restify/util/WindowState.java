@@ -3,7 +3,9 @@ package io.miti.restify.util;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Store information about the main window.
@@ -261,6 +263,15 @@ public final class WindowState
     prop.put("log.file", logFile);
     prop.put("log.overwrite", logOverwrite ? "1" : "0");
     
+    Set<Entry<String, String>> servers = ServerCache.getInstance().getMap();
+    final int serverCount = servers.size();
+    prop.put("server.count", Integer.toString(serverCount));
+    int i = 0;
+    for (Entry<String, String> entry : servers) {
+      prop.put("server." + i, entry.getKey() + "|" + entry.getValue());
+      ++i;
+    }
+    
     // Save the properties to a file
     Utility.storeProperties(filename, prop);
   }
@@ -323,6 +334,19 @@ public final class WindowState
     if (ws.y >= screenDim.height)
     {
       ws.y = 100;
+    }
+    
+    // Load any saved servers
+    int serverCount = parseInteger(props, "server.count");
+    if (serverCount > 0) {
+      for (int i = 0; i < serverCount; ++i) {
+        val = props.getProperty("server." + i);
+        if ((val != null) && val.contains("|")) {
+          String svrName = val.substring(0, val.indexOf('|'));
+          String svrUrl = val.substring(val.indexOf('|') + 1);
+          ServerCache.getInstance().add(svrName, svrUrl);
+        }
+      }
     }
   }
   

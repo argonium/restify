@@ -102,6 +102,8 @@ public class ServersTab extends JPanel
     c.gridy++;
     add(pButtons, c);
     
+    updateCombo();
+    
     updateButtons();
   }
   
