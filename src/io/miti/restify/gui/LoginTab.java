@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -162,17 +165,24 @@ public class LoginTab
     
     c.gridy = 2;
     c.gridx = 0;
-    topPanel.add(new JLabel("Field:"), c);
-    
-    c.gridx = 1;
-    topPanel.add(new JLabel("session_cookie"), c);
-    
-    c.gridx = 3;
     topPanel.add(new JLabel("Cookie:"), c);
     
-    c.gridx = 4;
+    c.gridx = 1;
     tfCookie = new JTextField(8);
     topPanel.add(tfCookie, c);
+    
+    c.gridx = 3;
+    JButton btnCopy = new JButton("Copy");
+    btnCopy.setToolTipText("Copy the generated cookie to the clipboard");
+    btnCopy.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        copyCookie();
+      }
+    });
+    topPanel.add(btnCopy, c);
+    
+//    c.gridx = 4;
 
     c.gridx = 5;
     JButton btnSignOut = new JButton("Sign Out");
@@ -188,6 +198,20 @@ public class LoginTab
     return topPanel;
   }
   
+  /**
+   * Copy the generated session cookie to the clipboard
+   */
+  private void copyCookie() {
+    
+    final String cookie = tfCookie.getText();
+    if ((cookie != null) && !cookie.isEmpty()) {
+      // Copy the cookie to the clip board
+      StringSelection selection = new StringSelection(cookie);
+      Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+      clipboard.setContents(selection, selection);
+    }
+  }
+
   private void signOut() {
     sessionCookie = null;
     updateStatusBar();
