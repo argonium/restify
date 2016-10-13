@@ -124,7 +124,7 @@ public class LoginTab
     
     c.gridx = 1;
     c.gridwidth = 4;
-    tfUrl = new JTextField(32);
+    tfUrl = new JTextField(23);
     topPanel.add(tfUrl, c);
     
     c.gridx = 5;
@@ -171,7 +171,7 @@ public class LoginTab
     topPanel.add(new JLabel("Cookie:"), c);
     
     c.gridx = 4;
-    tfCookie = new JTextField(17);
+    tfCookie = new JTextField(8);
     topPanel.add(tfCookie, c);
 
     c.gridx = 5;
