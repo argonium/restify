@@ -5,17 +5,27 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class PerfTab extends JPanel
 {
@@ -208,6 +218,7 @@ public class PerfTab extends JPanel
     
     c.gridx = 7;
     JButton btnImport = new JButton("Import HAR");
+    btnImport.setToolTipText("Import HAR data from the clipboard");
     btnImport.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -223,7 +234,78 @@ public class PerfTab extends JPanel
   }
   
   protected void importHAR() {
-    // TODO Auto-generated method stub
+    // Import any HAR data from the clip board
+    final List<String> urls = new ArrayList<>(20);
+    boolean errorFound = false;
+    try {
+      Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+      if (clipboard != null) {
+        Transferable contents = clipboard.getContents(null);
+        if (contents != null) {
+          String text = (String) contents.getTransferData(DataFlavor.stringFlavor);
+          if ((text != null) && !text.isEmpty()) {
+            
+            JSONObject jsonObject = new JSONObject(text);
+            if (jsonObject != null) {
+              JSONObject log = jsonObject.getJSONObject("log");
+              if (log != null) {
+                JSONArray entries = log.getJSONArray("entries");
+                if (entries != null) {
+                  final int numEntries = entries.length();
+                  for (int i = 0; i < numEntries; ++i) {
+                    JSONObject entry = entries.getJSONObject(i);
+                    JSONObject req = entry.getJSONObject("request");
+                    if (req != null) {
+                      String url = (String) req.get("url");
+                      if (url != null) {
+                        if (includeUrl(url)) {
+                          urls.add(url);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (Exception ex) {
+      errorFound = true;
+      System.err.println("Exception during HAR import: " + ex.getMessage());
+    }
+    
+    if (errorFound) {
+      JOptionPane.showMessageDialog(this, "Error occurred during HAR import from the clipboard", "Error", JOptionPane.ERROR_MESSAGE);;
+      return;
+    }
+    
+    // TODO Filter out any URLs that don't start with the selected server's URL
+    
+    // Replace taUrls with the list of found URLs
+    if (!urls.isEmpty()) {
+      StringBuilder target = new StringBuilder(100);
+      for (String url : urls) {
+        target.append(url.trim()).append('\n');
+      }
+      
+      taUrls.setText(target.toString());
+      taUrls.setCaretPosition(0);
+    } else {
+      JOptionPane.showMessageDialog(this, "No matching URLs found in the HAR data", "Warning", JOptionPane.INFORMATION_MESSAGE);
+    }
+  }
+  
+  private static boolean includeUrl(final String url) {
+    if ((url == null) || url.trim().isEmpty()) {
+      return false;
+    } else if (url.endsWith(".html") || url.endsWith(".png") || url.endsWith(".js") ||
+        url.endsWith(".jpeg") || url.endsWith(".jpg") || url.endsWith(".css") ||
+        url.contains("/js/") || url.contains("/css/")) {
+      return false;
+    }
+    
+    return true;
   }
 
   private void startRun() {
