@@ -43,6 +43,8 @@ public class PerfTab extends JPanel
   private JTextField tfThreads;
   private JTextField tfRuns;
   private JTextField tfThreshold;
+  
+  private static String selectedServer;
 
   public PerfTab() {
     super(new GridLayout(2, 1, 20, 20));
@@ -234,9 +236,66 @@ public class PerfTab extends JPanel
   }
   
   protected void importHAR() {
+    
+    // Get the raw URLs from the clipboard
+    final List<String> urls = getURLsFromHar();
+    if (urls.isEmpty()) {
+      JOptionPane.showMessageDialog(this, "Error occurred during HAR import from the clipboard", "Error", JOptionPane.ERROR_MESSAGE);;
+      return;
+    }
+    
+    // Filter out any URLs that don't start with the selected server's URL
+    filterURLsFromHAR(urls);
+    
+    // Populate taUrls with the list of found URLs
+    if (!urls.isEmpty()) {
+      StringBuilder target = new StringBuilder(100);
+      for (String url : urls) {
+        target.append(url.trim()).append('\n');
+      }
+      
+      taUrls.setText(target.toString().trim());
+      taUrls.setCaretPosition(0);
+    } else {
+      JOptionPane.showMessageDialog(this, "No matching URLs found in the HAR data", "Warning", JOptionPane.INFORMATION_MESSAGE);
+    }
+  }
+  
+  private void filterURLsFromHAR(List<String> urls) {
+    
+    // This holds the modified URLs we want to keep
+    List<String> targets = new ArrayList<>(20);
+    
+    // Ensure a server is selected first
+    if (selectedServer != null) {
+      // Iterate over the URLs
+      for (String url : urls) {
+        
+        // If this URL starts with the selected server, continue processing
+        if (url.toLowerCase().startsWith(selectedServer.toLowerCase())) {
+          
+          // Save everything after selectedServer
+          String target = url.substring(selectedServer.length());
+          
+          // The length must be at least 2 (possibly including "/")
+          if (target.length() > 1) {
+            targets.add(target.startsWith("/") ? target : ("/" + target));
+          }
+        }
+      }
+    }
+    
+    // Copy the targets to the URLs field
+    urls.clear();
+    for (String target : targets) {
+      urls.add(target);
+    }
+  }
+
+  private List<String> getURLsFromHar() {
+    
     // Import any HAR data from the clip board
     final List<String> urls = new ArrayList<>(20);
-    boolean errorFound = false;
     try {
       Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
       if (clipboard != null) {
@@ -271,31 +330,13 @@ public class PerfTab extends JPanel
         }
       }
     } catch (Exception ex) {
-      errorFound = true;
       System.err.println("Exception during HAR import: " + ex.getMessage());
+      urls.clear();
     }
     
-    if (errorFound) {
-      JOptionPane.showMessageDialog(this, "Error occurred during HAR import from the clipboard", "Error", JOptionPane.ERROR_MESSAGE);;
-      return;
-    }
-    
-    // TODO Filter out any URLs that don't start with the selected server's URL
-    
-    // Replace taUrls with the list of found URLs
-    if (!urls.isEmpty()) {
-      StringBuilder target = new StringBuilder(100);
-      for (String url : urls) {
-        target.append(url.trim()).append('\n');
-      }
-      
-      taUrls.setText(target.toString());
-      taUrls.setCaretPosition(0);
-    } else {
-      JOptionPane.showMessageDialog(this, "No matching URLs found in the HAR data", "Warning", JOptionPane.INFORMATION_MESSAGE);
-    }
+    return urls;
   }
-  
+
   private static boolean includeUrl(final String url) {
     if ((url == null) || url.trim().isEmpty()) {
       return false;
@@ -318,6 +359,10 @@ public class PerfTab extends JPanel
   
   private void resetRun() {
     resetFields();
+  }
+  
+  public static void setSelectedServer(final String url) {
+    selectedServer = url;
   }
   
   private void resetFields() {

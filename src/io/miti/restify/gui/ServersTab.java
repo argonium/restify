@@ -127,6 +127,7 @@ public class ServersTab extends JPanel
     
     // Update the login URL
     LoginTab.getInstance().setUrlText(url);
+    PerfTab.setSelectedServer(url);
   }
 
   private void addServer() {
