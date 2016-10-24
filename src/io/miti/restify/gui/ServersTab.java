@@ -18,21 +18,29 @@ import javax.swing.JTextField;
 import io.miti.restify.util.ServerCache;
 import io.miti.restify.util.Utility;
 
-public class ServersTab extends JPanel
+public final class ServersTab
 {
   private static final String NO_OPTION = "<None Available>";
   
-  private static final long serialVersionUID = 1L;
+  private static final ServersTab serversTab;
+  
+  private JPanel serversPanel;
+  
   private JComboBox<String> cbServers;
   private JLabel lblUrl;
   private JButton btnEdit;
   private JButton btnDelete;
   private JButton btnAdd;
   private JButton btnSelect;
+  
+  static {
+    serversTab = new ServersTab();
+    serversTab.serversPanel = new JPanel(new GridBagLayout());
+    serversTab.buildPage();
+  }
 
-  public ServersTab() {
-    super(new GridBagLayout());
-    buildPage();
+  private ServersTab() {
+    super();
   }
   
   private void buildPage() {
@@ -61,7 +69,7 @@ public class ServersTab extends JPanel
       }
     });
     pListing.add(btnSelect);
-    add(pListing, c);
+    serversPanel.add(pListing, c);
     
     JPanel pServer = new JPanel();
     JLabel lblTitle = new JLabel("URL: ");
@@ -69,7 +77,7 @@ public class ServersTab extends JPanel
     pServer.add(lblTitle);
     pServer.add(lblUrl);
     c.gridy++;
-    add(pServer, c);
+    serversPanel.add(pServer, c);
     
     JPanel pButtons = new JPanel();
     btnAdd = new JButton("Add");
@@ -100,7 +108,7 @@ public class ServersTab extends JPanel
     pButtons.add(btnEdit);
     pButtons.add(btnDelete);
     c.gridy++;
-    add(pButtons, c);
+    serversPanel.add(pButtons, c);
     
     updateCombo();
     
@@ -154,7 +162,7 @@ public class ServersTab extends JPanel
     myPanel.add(new JLabel("URL:"));
     myPanel.add(tfUrl);
 
-    int result = JOptionPane.showConfirmDialog(this, myPanel, 
+    int result = JOptionPane.showConfirmDialog(serversPanel, myPanel, 
              "Please enter the server data", JOptionPane.OK_CANCEL_OPTION,
              JOptionPane.QUESTION_MESSAGE);
     
@@ -212,6 +220,10 @@ public class ServersTab extends JPanel
     
     // Update the buttons
     updateButtons();
+  }
+  
+  public static JPanel getPanel() {
+    return serversTab.serversPanel;
   }
 
   private void updateDisplayedUrl() {

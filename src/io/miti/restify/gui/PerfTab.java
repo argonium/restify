@@ -27,9 +27,14 @@ import javax.swing.border.TitledBorder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class PerfTab extends JPanel
+import io.miti.restify.util.WindowState;
+
+public final class PerfTab
 {
-  private static final long serialVersionUID = 1L;
+  private static final PerfTab perfTab;
+  
+  private JPanel perfPanel;
+  
   private JTextArea taOutput;
   private JTextField tfProgress;
   private JTextField tfFailure;
@@ -46,14 +51,20 @@ public class PerfTab extends JPanel
   
   private static String selectedServer;
 
-  public PerfTab() {
-    super(new GridLayout(2, 1, 20, 20));
-    setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-    buildTopPanel();
-    buildBottomPanel();
-    resetFields();
+  static {
+    perfTab = new PerfTab();
+    perfTab.perfPanel = new JPanel(new GridLayout(2, 1, 20, 20));
+    perfTab.perfPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    perfTab.buildTopPanel();
+    perfTab.buildBottomPanel();
+    perfTab.resetFields();
+    perfTab.loadStoredURLs();
   }
   
+  private PerfTab() {
+    super();
+  }
+
   private void buildBottomPanel() {
     
     JPanel panel = new JPanel(new GridBagLayout());    
@@ -127,7 +138,7 @@ public class PerfTab extends JPanel
     
     panel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Results"));
     
-    add(panel);
+    perfPanel.add(panel);
   }
   
   private void buildTopPanel() {
@@ -232,7 +243,7 @@ public class PerfTab extends JPanel
     panel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.BLACK),
         "URLs and Settings"));
     
-    add(panel);
+    perfPanel.add(panel);
   }
   
   protected void importHAR() {
@@ -240,7 +251,7 @@ public class PerfTab extends JPanel
     // Get the raw URLs from the clipboard
     final List<String> urls = getURLsFromHar();
     if (urls.isEmpty()) {
-      JOptionPane.showMessageDialog(this, "Error occurred during HAR import from the clipboard", "Error", JOptionPane.ERROR_MESSAGE);;
+      JOptionPane.showMessageDialog(perfPanel, "Error occurred during HAR import from the clipboard", "Error", JOptionPane.ERROR_MESSAGE);;
       return;
     }
     
@@ -257,7 +268,7 @@ public class PerfTab extends JPanel
       taUrls.setText(target.toString().trim());
       taUrls.setCaretPosition(0);
     } else {
-      JOptionPane.showMessageDialog(this, "No matching URLs found in the HAR data", "Warning", JOptionPane.INFORMATION_MESSAGE);
+      JOptionPane.showMessageDialog(perfPanel, "No matching URLs found in the HAR data", "Warning", JOptionPane.INFORMATION_MESSAGE);
     }
   }
   
@@ -381,5 +392,23 @@ public class PerfTab extends JPanel
     tfThreads.setText("10");
     tfRuns.setText("5");
     tfThreshold.setText("10");
+  }
+  
+  public static JPanel getPanel() {
+    return perfTab.perfPanel;
+  }
+  
+  public static String getURLText() {
+    return perfTab.taUrls.getText();
+  }
+  
+  private void loadStoredURLs() {
+    
+    // Get any saved URL text from the properties file
+    String urlText = WindowState.getInstance().getURLs();
+    if ((urlText != null) && !urlText.isEmpty()) {
+      // Text was found, so save it now
+      taUrls.setText(urlText);
+    }
   }
 }

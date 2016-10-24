@@ -143,10 +143,10 @@ public final class Restify
     
     // Populate the tabbed panes
     tp = new JTabbedPane();
-    tp.add("Servers", new ServersTab());
+    tp.add("Servers", ServersTab.getPanel());
     tp.add("Login", LoginTab.getInstance().getPanel());
-    tp.add("Performance", new PerfTab());
-    tp.add("Console", new ConsoleTab());
+    tp.add("Performance", PerfTab.getPanel());
+    tp.add("Console", ConsoleTab.getPanel());
     appPanel.add(tp, BorderLayout.CENTER);
     
     // Add the panel to the frame
@@ -173,6 +173,9 @@ public final class Restify
    */
   private void exitApp()
   {
+    // Save any URL text
+    windowState.setURLs(PerfTab.getURLText());
+    
     // Store the window state in the properties file
     windowState.update(frame.getBounds());
     windowState.saveToFile(PROPS_FILE_NAME);
@@ -197,12 +200,6 @@ public final class Restify
     
     // Initialize the look and feel to the default for this OS
     Utility.initLookAndFeel();
-    
-    // Check the version number
-    if (!Utility.hasRequiredJVMVersion())
-    {
-      System.exit(0);
-    }
     
     // Schedule a job for the event-dispatching thread:
     // creating and showing this application's GUI.

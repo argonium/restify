@@ -6,12 +6,15 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 import io.miti.restify.util.Utility;
 
-public class ConsoleTab extends JPanel
+public final class ConsoleTab
 {
-  private static final long serialVersionUID = 1L;
+  private static final ConsoleTab consoleTab;
+  
+  private JPanel consolePanel;
   
   /** The logged events. */
   private JTextArea taOutput = null;
@@ -19,18 +22,23 @@ public class ConsoleTab extends JPanel
   /** The button to clear the page. */
   private JButton btnClear = null;
 
+  static {
+    consoleTab = new ConsoleTab();
+    consoleTab.consolePanel = new JPanel(new BorderLayout(20, 10));
+    consoleTab.setupPanel();
+  }
+  
   /**
    * Default constructor.
    */
-  public ConsoleTab() {
-    super(new BorderLayout(20, 10));
-    setupPanel();
+  private ConsoleTab() {
+    super();
   }
   
   /**
    * Add components to the panel.
    */
-  public void setupPanel() {
+  private void setupPanel() {
     
     taOutput = new JTextArea();
     JScrollPane spOutput = new JScrollPane(taOutput);
@@ -39,8 +47,12 @@ public class ConsoleTab extends JPanel
     JPanel topPanel = new JPanel(new BorderLayout());
     topPanel.add(btnClear, BorderLayout.WEST);
     
-    add(spOutput, BorderLayout.CENTER);
-    add(topPanel, BorderLayout.NORTH);
+    consolePanel.add(spOutput, BorderLayout.CENTER);
+    consolePanel.add(topPanel, BorderLayout.NORTH);
+  }
+  
+  public static JPanel getPanel() {
+    return consoleTab.consolePanel;
   }
   
   /**
@@ -50,14 +62,30 @@ public class ConsoleTab extends JPanel
    * @param runNumber the run number
    * @param event the event description
    */
-  public synchronized void addEvent(final int threadNumber, final int runNumber,
-                                    final String event) {
+  public static synchronized void addEvent(final int threadNumber, final int runNumber,
+                                           final String event) {
     
-    // Get the current date/time
+    // Get the current date/time, and build the string to add to the main control
     final String date = Utility.getDateTimeString();
+    final String line = String.format("%d,%d,%s,%s\n", threadNumber, runNumber, date, event.trim());
     
-    // TODO Make this thread-safe
-    String line = String.format("%d,%d,%s,%s\n", threadNumber, runNumber, date, event);
-    taOutput.append(line);
+    // This method can get called from either the EDT or another
+    // thread, so handle both cases
+    if (SwingUtilities.isEventDispatchThread()) {
+      // We're on the EDT, so just add the line to the component
+      consoleTab.taOutput.append(line);
+    } else {
+      // Not on the EDT, so set the text on the EDT
+      try {
+        SwingUtilities.invokeAndWait(new Runnable() {
+          @Override
+          public void run() {
+            consoleTab.taOutput.append(line);
+          }
+        });
+      } catch (Exception ex) {
+        System.err.println("Exception adding event to console tab: " + ex.getMessage());
+      }
+    }
   }
 }

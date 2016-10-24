@@ -17,7 +17,6 @@ import java.util.Properties;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JViewport;
 
@@ -416,39 +415,6 @@ public final class Utility
     {
       Logger.error("Exception: " + e.getMessage());
     }
-  }
-  
-  
-  /**
-   * Verify the user has the minimum version of the JVM
-   * needed to run the application.
-   * 
-   * @return whether the JVM is the minimum supported version
-   */
-  public static boolean hasRequiredJVMVersion()
-  {
-    // The value that gets returned
-    boolean status = true;
-    
-    // Check the version number
-    status = SystemInfo.isJava5orHigher();
-    if (!status)
-    {
-      // This will hold the error string
-      StringBuilder sb = new StringBuilder(100);
-      
-      sb.append("This application requires Java 1.5 (5.0) or later")
-        .append(".\nYour installed version of Java is ")
-        .append(SystemInfo.getCurrentJavaVersionAsString())
-        .append('.');
-      
-      // Show an error message to the user
-      JOptionPane.showMessageDialog(null, sb.toString(),
-                         "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    
-    // Return the status code
-    return status;
   }
   
   

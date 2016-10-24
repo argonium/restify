@@ -32,9 +32,9 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 import io.miti.restify.util.Utility;
 
-public class LoginTab
+public final class LoginTab
 {
-  private static LoginTab loginTab;
+  private static final LoginTab loginTab;
   
   private JPanel loginPanel = null;
   

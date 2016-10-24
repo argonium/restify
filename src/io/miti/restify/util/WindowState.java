@@ -3,6 +3,7 @@ package io.miti.restify.util;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.Base64;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -38,6 +39,12 @@ public final class WindowState
   private int width = 0;
   
   /**
+   * Raw text for the list of URLs on the Performance tab.
+   * This is not base 64-encoded (but stored as base-64 in the file).
+   */
+  private String urls = null;
+  
+  /**
    * The log level.  Zero = no logging.  Possible values are 0-5.
    */
   private int logLevel = 0;
@@ -51,8 +58,7 @@ public final class WindowState
   /**
    * Whether to overwrite the log file, or append.
    */
-  private boolean logOverwrite = true;
-  
+  private boolean logOverwrite = true;  
   
   /**
    * Default constructor.
@@ -186,6 +192,14 @@ public final class WindowState
     y = yValue;
   }
   
+  public String getURLs() {
+    return urls;
+  }
+  
+  public void setURLs(final String urls) {
+    this.urls = urls;
+  }
+  
   
   /**
    * Return the height and width as a dimension.
@@ -272,6 +286,13 @@ public final class WindowState
       ++i;
     }
     
+    if ((urls != null) && !urls.isEmpty()) {
+      // We have some URL text, so encode it as base-64
+      final byte[] encodedURLs = Base64.getEncoder().encode(urls.getBytes());
+      final String urlStr = new String(encodedURLs);
+      prop.put("urls", urlStr);
+    }
+    
     // Save the properties to a file
     Utility.storeProperties(filename, prop);
   }
@@ -346,6 +367,17 @@ public final class WindowState
           String svrUrl = val.substring(val.indexOf('|') + 1);
           ServerCache.getInstance().add(svrName, svrUrl);
         }
+      }
+    }
+    
+    // Get any saved text for the list of URLs on the Performance tab
+    final String urlStr = (String) props.get("urls");
+    if ((urlStr != null) && !urlStr.isEmpty()) {
+      try {
+        byte[] decodedURLs = Base64.getDecoder().decode(urlStr);
+        ws.urls = new String(decodedURLs);
+      } catch (Exception ex) {
+        System.err.println("Exception decoding URLs from properties file: " + ex.getMessage());
       }
     }
   }
