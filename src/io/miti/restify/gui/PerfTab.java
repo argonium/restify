@@ -354,8 +354,12 @@ public final class PerfTab
     return true;
   }
 
+  /**
+   * Run the threads to check performance of the selected server.
+   */
   private void startRun() {
     
+    // Check the input parameters
     ThreadSettings ts;
     try {
       ts = getThreadSettings();
@@ -364,6 +368,7 @@ public final class PerfTab
       JOptionPane.showMessageDialog(perfPanel, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     
+    // If an error occurred, exit
     if (ts == null) {
       return;
     }
@@ -375,7 +380,7 @@ public final class PerfTab
    * Signal that a single run completed.
    * 
    * @param ts the thread settings
-   * @param url the worst-performing URL from the run
+   * @param url the current URL from the run
    * @param runTime the run time (in ms) for the URL
    */
   public static void updateProgress(ThreadSettings ts, String url, long runTime) {
@@ -390,7 +395,27 @@ public final class PerfTab
     ts.setMaxDelay(Utility.getStringAsFloat(tfMaxDelay.getText(), -1.0f, -1.0f));
     ts.setNumThreads(Utility.getStringAsInteger(tfThreads.getText(), -1, -1));
     ts.setNumRuns(Utility.getStringAsInteger(tfRuns.getText(), -1, -1));
-    ts.setFailureThreshold(Utility.getStringAsFloat(tfFailure.getText(), -1.0f, -1.0f));
+    ts.setFailureThreshold(Utility.getStringAsFloat(tfThreshold.getText(), -1.0f, -1.0f));
+    
+    // Add the URLs
+    final String urls = taUrls.getText();
+    if (urls != null) {
+      String[] split = urls.trim().split("\n");
+      if ((split != null) && (split.length > 0)) {
+        for (String url : split) {
+          String line = url.trim();
+          // If it starts with a ; then treat it as a comment
+          if ((line.length() > 1) && !line.startsWith(";")) {
+            ts.addURL(line);
+          }
+        }
+      }
+    }
+    
+    // Set the selected server
+    ts.setSelectedServer(selectedServer);
+    
+    // TODO Handle auto-login, and get the cookie
     
     // Check for errors
     if (ts.getMinDelay() < 0.0f) {
@@ -403,6 +428,10 @@ public final class PerfTab
       throw new Exception("The number of runs must be a positive integer");
     } else if (ts.getFailureThreshold() < 0) {
       throw new Exception("The failure threshold must be a non-negative floating point number");
+    } else if (ts.getURLCount() == 0) {
+      throw new Exception("No URLs were specified");
+    } else if ((selectedServer == null) || selectedServer.isEmpty()) {
+      throw new Exception("No server is selected");
     }
     
     // If we reach this point, the input looks good

@@ -1,5 +1,8 @@
 package io.miti.restify.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author mike
  */
@@ -14,6 +17,10 @@ public final class ThreadSettings
   private int numRuns;
   
   private float failureThreshold;
+  
+  private List<String> urls = new ArrayList<>(20);
+  
+  private String selectedServer;
   
   /**
    * Default constructor.
@@ -60,5 +67,23 @@ public final class ThreadSettings
 
   public void setFailureThreshold(float failureThreshold) {
     this.failureThreshold = failureThreshold;
+  }
+  
+  public void addURL(final String url) {
+    if ((url != null) && !url.trim().isEmpty()) {
+      urls.add(url);
+    }
+  }
+  
+  public int getURLCount() {
+    return urls.size();
+  }
+  
+  public void setSelectedServer(final String pServer) {
+    selectedServer = pServer;
+  }
+  
+  public String getSelectedServer() {
+    return selectedServer;
   }
 }
