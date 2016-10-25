@@ -27,6 +27,8 @@ import javax.swing.border.TitledBorder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import io.miti.restify.model.ThreadSettings;
+import io.miti.restify.util.Utility;
 import io.miti.restify.util.WindowState;
 
 public final class PerfTab
@@ -35,13 +37,15 @@ public final class PerfTab
   
   private JPanel perfPanel;
   
+  // Output fields
   private JTextArea taOutput;
   private JTextField tfProgress;
   private JTextField tfFailure;
   private JTextField tfMinTime;
   private JTextField tfMaxTime;
   private JTextField tfWorstUrl;
-  private JTextField tfWorstTime;
+  
+  // Input fields
   private JTextArea taUrls;
   private JTextField tfMinDelay;
   private JTextField tfMaxDelay;
@@ -125,16 +129,6 @@ public final class PerfTab
     tfWorstUrl = new JTextField(20);
     tfWorstUrl.setEditable(false);
     panel.add(tfWorstUrl, c);
-    
-    c.gridy = 3;
-    c.gridx = 4;
-    c.gridwidth = 1;
-    panel.add(new JLabel("Worst Time:"), c);
-    
-    c.gridx = 5;
-    tfWorstTime = new JTextField(6);
-    tfWorstTime.setEditable(false);
-    panel.add(tfWorstTime, c);
     
     panel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Results"));
     
@@ -361,7 +355,58 @@ public final class PerfTab
   }
 
   private void startRun() {
+    
+    ThreadSettings ts;
+    try {
+      ts = getThreadSettings();
+    } catch (Exception ex) {
+      ts = null;
+      JOptionPane.showMessageDialog(perfPanel, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    if (ts == null) {
+      return;
+    }
+    
     // TODO
+  }
+  
+  /**
+   * Signal that a single run completed.
+   * 
+   * @param ts the thread settings
+   * @param url the worst-performing URL from the run
+   * @param runTime the run time (in ms) for the URL
+   */
+  public static void updateProgress(ThreadSettings ts, String url, long runTime) {
+    // TODO
+  }
+  
+  private ThreadSettings getThreadSettings() throws Exception {
+    
+    // Populate our object with the data from the input section of the screen
+    ThreadSettings ts = new ThreadSettings();
+    ts.setMinDelay(Utility.getStringAsFloat(tfMinDelay.getText(), -1.0f, -1.0f));
+    ts.setMaxDelay(Utility.getStringAsFloat(tfMaxDelay.getText(), -1.0f, -1.0f));
+    ts.setNumThreads(Utility.getStringAsInteger(tfThreads.getText(), -1, -1));
+    ts.setNumRuns(Utility.getStringAsInteger(tfRuns.getText(), -1, -1));
+    ts.setFailureThreshold(Utility.getStringAsFloat(tfFailure.getText(), -1.0f, -1.0f));
+    
+    // Check for errors
+    if (ts.getMinDelay() < 0.0f) {
+      throw new Exception("The minimum delay must be a non-negative floating point number");
+    } else if (ts.getMaxDelay() < ts.getMinDelay()) {
+      throw new Exception("The maximum delay must be greater than or equal to the minimum delay");
+    } else if (ts.getNumThreads() < 1) {
+      throw new Exception("The number of threads must be a positive integer");
+    } else if (ts.getNumRuns() < 1) {
+      throw new Exception("The number of runs must be a positive integer");
+    } else if (ts.getFailureThreshold() < 0) {
+      throw new Exception("The failure threshold must be a non-negative floating point number");
+    }
+    
+    // If we reach this point, the input looks good
+    return ts;
   }
   
   private void stopRun() {
@@ -384,7 +429,6 @@ public final class PerfTab
     tfMinTime.setText("");
     tfMaxTime.setText("");
     tfWorstUrl.setText("");
-    tfWorstTime.setText("");
     
     // Set the default input values
     tfMinDelay.setText("2");
