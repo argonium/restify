@@ -53,6 +53,9 @@ public final class PerfTab
   private JTextField tfRuns;
   private JTextField tfThreshold;
   
+  // The soaker threads
+  private List<Soaker> soakers = new ArrayList<>();
+  
   private static String selectedServer;
 
   static {
@@ -359,6 +362,9 @@ public final class PerfTab
    */
   private void startRun() {
     
+    // Clear the list of soakers
+    soakers.clear();
+    
     // Check the input parameters
     ThreadSettings ts;
     try {
@@ -373,7 +379,15 @@ public final class PerfTab
       return;
     }
     
-    // TODO
+    // Create the list of soakers
+    final int numThreads = ts.getNumThreads();
+    for (int i = 0; i < numThreads; ++i) {
+      // TODO Pass the parameters here
+      soakers.add(new Soaker(i + 1, ts, "asdf"));
+    }
+    
+    // Start the list of threads
+    soakers.forEach(Thread::start);
   }
   
   /**
@@ -438,10 +452,21 @@ public final class PerfTab
     return ts;
   }
   
+  /**
+   * Set a flag for any running threads to stop processing.
+   */
   private void stopRun() {
-    // TODO
+    // Set the halt-process flag for each thread
+    if ((soakers != null) && !soakers.isEmpty()) {
+      for (Soaker t : soakers) {
+        t.haltThread();
+      }
+    }
   }
   
+  /**
+   * Reset the input and output fields for the page.
+   */
   private void resetRun() {
     resetFields();
   }

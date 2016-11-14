@@ -1,6 +1,7 @@
 package io.miti.restify.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -77,6 +78,10 @@ public final class ThreadSettings
   
   public int getURLCount() {
     return urls.size();
+  }
+  
+  public Iterator<String> getURLs() {
+    return urls.iterator();
   }
   
   public void setSelectedServer(final String pServer) {
