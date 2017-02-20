@@ -17,6 +17,7 @@ public final class Soaker extends Thread {
   private boolean haltProcess = false;
 
   public Soaker(final int serverNum, final ThreadSettings ts, final String cookie) {
+    super("Soaker-" + serverNum);
     this.serverNum = serverNum;
     this.ts = ts;
     this.cookie = cookie;
@@ -34,15 +35,17 @@ public final class Soaker extends Thread {
       while (urls.hasNext() && !haltProcess) {
         final String url = urls.next();
         
-        // TODO Make the call, and compare the execution time against the failure threshold
+        // Make the call, and compare the execution time against the failure threshold
         final long startTime = System.currentTimeMillis();
-        // Make the call
+        // TODO Make the call
         final long timeDelta = System.currentTimeMillis() - startTime;
         
         // Check the threshold
         if (timeDelta > ((long) (ts.getFailureThreshold() * 1000L))) {
           // TODO Handle the failure (the API call took too long)
         }
+        
+        // TODO Log the run and error
         
         // Sleep for some duration (between min and max)
         if (!haltProcess) {
