@@ -19,9 +19,11 @@ public final class ThreadSettings
   
   private float failureThreshold;
   
-  private List<String> urls = new ArrayList<>(20);
+  private final List<String> urls = new ArrayList<>(20);
   
   private String selectedServer;
+
+  private String sessionCookie;
   
   /**
    * Default constructor.
@@ -90,5 +92,13 @@ public final class ThreadSettings
   
   public String getSelectedServer() {
     return selectedServer;
+  }
+
+  public String getSessionCookie() {
+    return sessionCookie;
+  }
+
+  public void setSessionCookie(final String sCookie) {
+    sessionCookie = sCookie;
   }
 }

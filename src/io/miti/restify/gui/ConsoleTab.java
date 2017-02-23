@@ -1,6 +1,8 @@
 package io.miti.restify.gui;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -44,6 +46,12 @@ public final class ConsoleTab
     JScrollPane spOutput = new JScrollPane(taOutput);
     
     btnClear = new JButton("Clear");
+    btnClear.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        consoleTab.taOutput.setText("");
+      }
+    });
     JPanel topPanel = new JPanel(new BorderLayout());
     topPanel.add(btnClear, BorderLayout.WEST);
     

@@ -52,9 +52,12 @@ public final class PerfTab
   private JTextField tfThreads;
   private JTextField tfRuns;
   private JTextField tfThreshold;
+
+  /** Record the amount of elapsed time for the worst-performing URL */
+  private long worstUrlTime;
   
   // The soaker threads
-  private List<Soaker> soakers = new ArrayList<>();
+  private final List<Soaker> soakers = new ArrayList<>();
   
   private static String selectedServer;
 
@@ -248,7 +251,7 @@ public final class PerfTab
     // Get the raw URLs from the clipboard
     final List<String> urls = getURLsFromHar();
     if (urls.isEmpty()) {
-      JOptionPane.showMessageDialog(perfPanel, "Error occurred during HAR import from the clipboard", "Error", JOptionPane.ERROR_MESSAGE);;
+      JOptionPane.showMessageDialog(perfPanel, "Error occurred during HAR import from the clipboard", "Error", JOptionPane.ERROR_MESSAGE);
       return;
     }
     
@@ -313,21 +316,19 @@ public final class PerfTab
           if ((text != null) && !text.isEmpty()) {
             
             JSONObject jsonObject = new JSONObject(text);
-            if (jsonObject != null) {
-              JSONObject log = jsonObject.getJSONObject("log");
-              if (log != null) {
-                JSONArray entries = log.getJSONArray("entries");
-                if (entries != null) {
-                  final int numEntries = entries.length();
-                  for (int i = 0; i < numEntries; ++i) {
-                    JSONObject entry = entries.getJSONObject(i);
-                    JSONObject req = entry.getJSONObject("request");
-                    if (req != null) {
-                      String url = (String) req.get("url");
-                      if (url != null) {
-                        if (includeUrl(url)) {
-                          urls.add(url);
-                        }
+            JSONObject log = jsonObject.getJSONObject("log");
+            if (log != null) {
+              JSONArray entries = log.getJSONArray("entries");
+              if (entries != null) {
+                final int numEntries = entries.length();
+                for (int i = 0; i < numEntries; ++i) {
+                  JSONObject entry = entries.getJSONObject(i);
+                  JSONObject req = entry.getJSONObject("request");
+                  if (req != null) {
+                    String url = (String) req.get("url");
+                    if (url != null) {
+                      if (includeUrl(url)) {
+                        urls.add(url);
                       }
                     }
                   }
@@ -378,16 +379,36 @@ public final class PerfTab
     if (ts == null) {
       return;
     }
-    
+
+    // Get the session cookie for the soaker's API calls
+    final String cookie = getSessionCookie();
+
     // Create the list of soakers
     final int numThreads = ts.getNumThreads();
     for (int i = 0; i < numThreads; ++i) {
-      // TODO Pass the parameters here
-      soakers.add(new Soaker(i + 1, ts, "asdf"));
+      soakers.add(new Soaker(i + 1, ts, cookie));
     }
     
     // Start the list of threads
     soakers.forEach(Thread::start);
+  }
+
+  /**
+   * Get a valid session cookie.
+   *
+   * @return the session cookie for the API calls
+   */
+  private String getSessionCookie() {
+
+    // Check for a cookie already generated (by manual login)
+    if (LoginTab.isLoggedIn()) {
+      // We have a cookie already, so use that
+      return LoginTab.getSessionCookie();
+    }
+
+    // TODO Handle auto-login, and get the cookie
+
+    return null;
   }
   
   /**
@@ -397,10 +418,30 @@ public final class PerfTab
    * @param url the current URL from the run
    * @param runTime the run time (in ms) for the URL
    */
-  public static void updateProgress(ThreadSettings ts, String url, long runTime) {
-    // TODO
+  public static synchronized void updateProgress(final ThreadSettings ts, final String url, final long runTime) {
+
+    // TODO Update the progress panel - add to the JList, etc.
+
+    // Check the threshold
+    final boolean failed = (runTime > ((long) (ts.getFailureThreshold() * 1000L)));
+    if (failed) {
+      // TODO Handle the failure (the API call took too long)
+    }
+
+
+    // Check if the runtime is the worst
+    if (runTime > perfTab.worstUrlTime) {
+      perfTab.worstUrlTime = runTime;
+      perfTab.tfWorstUrl.setText(url);
+    }
   }
-  
+
+  /**
+   * Save the thread settings from the options in the UI.
+   *
+   * @return the settings for the soaker threads
+   * @throws Exception thrown for bad input
+   */
   private ThreadSettings getThreadSettings() throws Exception {
     
     // Populate our object with the data from the input section of the screen
@@ -415,7 +456,7 @@ public final class PerfTab
     final String urls = taUrls.getText();
     if (urls != null) {
       String[] split = urls.trim().split("\n");
-      if ((split != null) && (split.length > 0)) {
+      if (split.length > 0) {
         for (String url : split) {
           String line = url.trim();
           // If it starts with a ; then treat it as a comment
@@ -428,8 +469,6 @@ public final class PerfTab
     
     // Set the selected server
     ts.setSelectedServer(selectedServer);
-    
-    // TODO Handle auto-login, and get the cookie
     
     // Check for errors
     if (ts.getMinDelay() < 0.0f) {
@@ -457,10 +496,8 @@ public final class PerfTab
    */
   private void stopRun() {
     // Set the halt-process flag for each thread
-    if ((soakers != null) && !soakers.isEmpty()) {
-      for (Soaker t : soakers) {
-        t.haltThread();
-      }
+    for (Soaker t : soakers) {
+      t.haltThread();
     }
   }
   
@@ -490,6 +527,8 @@ public final class PerfTab
     tfThreads.setText("10");
     tfRuns.setText("5");
     tfThreshold.setText("10");
+
+    worstUrlTime = 0L;
   }
   
   public static JPanel getPanel() {

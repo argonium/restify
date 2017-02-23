@@ -98,9 +98,7 @@ public final class LoginTab
   private JPanel getRequestPanel() {
     
     JPanel request = new JPanel(new BorderLayout());
-    taRequest = new JTextArea();
-    taRequest.setWrapStyleWord(false);
-    taRequest.setLineWrap(true);
+    taRequest = generateTextArea();
     request.add(new JScrollPane(taRequest), BorderLayout.CENTER);
     return request;
   }
@@ -108,11 +106,17 @@ public final class LoginTab
   private JPanel getResponsePanel() {
     
     JPanel response = new JPanel(new BorderLayout());
-    taResponse = new JTextArea();
-    taResponse.setWrapStyleWord(false);
-    taResponse.setLineWrap(true);
+    taResponse = generateTextArea();
     response.add(new JScrollPane(taResponse), BorderLayout.CENTER);
     return response;
+  }
+
+  private static JTextArea generateTextArea() {
+
+    final JTextArea area = new JTextArea();
+    area.setWrapStyleWord(false);
+    area.setLineWrap(true);
+    return area;
   }
   
   private JPanel getTopPanel() {
