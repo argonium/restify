@@ -23,8 +23,8 @@ public final class ThreadSettings
   
   private String selectedServer;
 
-  private String sessionCookie;
-  
+  private int failCount;
+
   /**
    * Default constructor.
    */
@@ -94,11 +94,11 @@ public final class ThreadSettings
     return selectedServer;
   }
 
-  public String getSessionCookie() {
-    return sessionCookie;
+  public int getFailCount() {
+    return failCount;
   }
 
-  public void setSessionCookie(final String sCookie) {
-    sessionCookie = sCookie;
+  public void incrementFailCount() {
+    failCount++;
   }
 }

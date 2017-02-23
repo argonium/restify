@@ -185,8 +185,6 @@ public final class LoginTab
       }
     });
     topPanel.add(btnCopy, c);
-    
-//    c.gridx = 4;
 
     c.gridx = 5;
     JButton btnSignOut = new JButton("Sign Out");
@@ -221,7 +219,7 @@ public final class LoginTab
     updateStatusBar();
   }
   
-  private void signIn() {
+  public boolean signIn() {
     
     // Get the inputs
     final String url = tfUrl.getText();
@@ -229,7 +227,8 @@ public final class LoginTab
     final String pw = tfPassword.getText();
     if (Utility.anyAreEmpty(url, user, pw)) {
       JOptionPane.showMessageDialog(loginPanel, "The URL, user and password must be provided", "Error", JOptionPane.WARNING_MESSAGE);
-      return;
+      signOut();
+      return false;
     }
     
     // Log the user in
@@ -240,6 +239,9 @@ public final class LoginTab
     
     // Update the status bar
     updateStatusBar();
+
+    // Return whether the signin was successful
+    return (sessionCookie != null);
   }
   
   private void loginUser(String url, String username, String password) {
@@ -341,7 +343,11 @@ public final class LoginTab
   }
   
   public static boolean isLoggedIn() {
-    return (sessionCookie == null);
+    return (sessionCookie != null);
+  }
+
+  public static boolean autoSignInChecked() {
+    return (loginTab.cbAutoSignIn.isSelected());
   }
   
   public JPanel getPanel() {

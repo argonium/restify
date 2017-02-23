@@ -382,6 +382,10 @@ public final class PerfTab
 
     // Get the session cookie for the soaker's API calls
     final String cookie = getSessionCookie();
+    if (cookie == null) {
+      // An error occurred.  A message should have been shown to the user, so return.
+      return;
+    }
 
     // Create the list of soakers
     final int numThreads = ts.getNumThreads();
@@ -406,9 +410,23 @@ public final class PerfTab
       return LoginTab.getSessionCookie();
     }
 
-    // TODO Handle auto-login, and get the cookie
+    // The user is not logged in, so check if the user wants to automatically login
+    if (LoginTab.autoSignInChecked()) {
+      // Log in now
+      if (LoginTab.getInstance().signIn()) {
+        // Successful login, so return the session cookie
+        return LoginTab.getSessionCookie();
+      }
 
-    return null;
+      // An error message should have already been shown by the signin() method
+      // JOptionPane.showMessageDialog(perfPanel, "Automatic login failed.  Please log in first.", "Error", JOptionPane.ERROR_MESSAGE);
+      return null;
+    } else {
+
+      // The user has auto-login disabled, and has not manually logged in
+      JOptionPane.showMessageDialog(perfPanel, "You are not signed in, and auto-login is unchecked.\nPlease log in first.", "Error", JOptionPane.ERROR_MESSAGE);
+      return null;
+    }
   }
   
   /**
@@ -425,9 +443,9 @@ public final class PerfTab
     // Check the threshold
     final boolean failed = (runTime > ((long) (ts.getFailureThreshold() * 1000L)));
     if (failed) {
-      // TODO Handle the failure (the API call took too long)
+      // Handle the failure (the API call took too long)
+      ts.incrementFailCount();
     }
-
 
     // Check if the runtime is the worst
     if (runTime > perfTab.worstUrlTime) {
