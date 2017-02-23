@@ -6,6 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import io.miti.restify.model.ThreadSettings;
+import io.miti.restify.util.ResponseCodeCache;
 import io.miti.restify.util.Utility;
 
 public final class Soaker extends Thread {
@@ -59,7 +60,7 @@ public final class Soaker extends Thread {
         haltProcess = !result;
 
         // Log the run
-        PerfTab.updateProgress(ts, url, timeDelta);
+        PerfTab.updateProgress(ts, url, timeDelta, serverNum, i + 1);
         
         // Sleep for some duration (between min and max)
         if (!haltProcess) {
@@ -111,7 +112,8 @@ public final class Soaker extends Thread {
       final int status = response.getStatus();
 
       // Log the event
-      final String event = String.format("Status for %s is %d: %s", url, status, response.getStatusText());
+      final String event = String.format("Status for %s is %d: %s", url, status,
+              ResponseCodeCache.getCache().getResponseMessage(status));
       ConsoleTab.addEvent(serverNum, runIndex, event);
 
       // Check the status

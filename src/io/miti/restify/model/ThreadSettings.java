@@ -25,6 +25,12 @@ public final class ThreadSettings
 
   private int failCount;
 
+  private int completedCount;
+
+  private long minResponseTime = Long.MAX_VALUE;
+
+  private long maxResponseTime = Long.MIN_VALUE;
+
   /**
    * Default constructor.
    */
@@ -100,5 +106,29 @@ public final class ThreadSettings
 
   public void incrementFailCount() {
     failCount++;
+  }
+
+  public int getCompletedCount() {
+    return completedCount;
+  }
+
+  public void incrementCompletedCount() {
+    completedCount++;
+  }
+
+  public long getMinResponseTime() {
+    return minResponseTime;
+  }
+
+  public void updateMinResponseTime(final long lCurrTime) {
+    minResponseTime = Math.min(minResponseTime, lCurrTime);
+  }
+
+  public long getMaxResponseTime() {
+    return maxResponseTime;
+  }
+
+  public void updateMaxResponseTime(final long lCurrTime) {
+    maxResponseTime = Math.max(maxResponseTime, lCurrTime);
   }
 }

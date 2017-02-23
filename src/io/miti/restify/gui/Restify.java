@@ -39,14 +39,7 @@ public final class Restify
    * The window state (position and size).
    */
   private WindowState windowState = null;
-  
-  /**
-   * The middle panel.
-   */
-  private JPanel appPanel = null;
-  
-  private JTabbedPane tp = null;
-  
+
   private static final Restify app = new Restify();
   
   
@@ -138,11 +131,11 @@ public final class Restify
   private void initScreen()
   {
     // Build the middle panel
-    appPanel = new JPanel(new BorderLayout());
+    final JPanel appPanel = new JPanel(new BorderLayout());
     appPanel.setBackground(Color.WHITE);
     
     // Populate the tabbed panes
-    tp = new JTabbedPane();
+    final JTabbedPane tp = new JTabbedPane();
     tp.add("Servers", ServersTab.getPanel());
     tp.add("Login", LoginTab.getInstance().getPanel());
     tp.add("Performance", PerfTab.getPanel());

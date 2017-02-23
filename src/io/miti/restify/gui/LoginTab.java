@@ -216,6 +216,7 @@ public final class LoginTab
 
   private void signOut() {
     sessionCookie = null;
+    tfCookie.setText("");
     updateStatusBar();
   }
   

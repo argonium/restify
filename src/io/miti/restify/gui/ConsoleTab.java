@@ -20,9 +20,6 @@ public final class ConsoleTab
   
   /** The logged events. */
   private JTextArea taOutput = null;
-  
-  /** The button to clear the page. */
-  private JButton btnClear = null;
 
   static {
     consoleTab = new ConsoleTab();
@@ -45,7 +42,7 @@ public final class ConsoleTab
     taOutput = new JTextArea();
     JScrollPane spOutput = new JScrollPane(taOutput);
     
-    btnClear = new JButton("Clear");
+    final JButton btnClear = new JButton("Clear");
     btnClear.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -75,8 +72,8 @@ public final class ConsoleTab
     
     // Get the current date/time, and build the string to add to the main control
     final String date = Utility.getDateTimeString();
-    final String line = String.format("%d,%d,%s,%s\n", threadNumber, runNumber, date, event.trim());
-    
+    final String line = String.format("%s: Thread %d @ Run %d: %s\n", date, threadNumber, runNumber, event.trim());
+
     // This method can get called from either the EDT or another
     // thread, so handle both cases
     if (SwingUtilities.isEventDispatchThread()) {

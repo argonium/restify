@@ -30,7 +30,6 @@ public final class ServersTab
   private JLabel lblUrl;
   private JButton btnEdit;
   private JButton btnDelete;
-  private JButton btnAdd;
   private JButton btnSelect;
   
   static {
@@ -79,8 +78,8 @@ public final class ServersTab
     c.gridy++;
     serversPanel.add(pServer, c);
     
-    JPanel pButtons = new JPanel();
-    btnAdd = new JButton("Add");
+    final JPanel pButtons = new JPanel();
+    final JButton btnAdd = new JButton("Add");
     btnAdd.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {

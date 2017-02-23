@@ -14,14 +14,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
 import org.json.JSONArray;
@@ -436,13 +429,16 @@ public final class PerfTab
    * @param url the current URL from the run
    * @param runTime the run time (in ms) for the URL
    */
-  public static synchronized void updateProgress(final ThreadSettings ts, final String url, final long runTime) {
+  public static synchronized void updateProgress(final ThreadSettings ts, final String url, final long runTime,
+                                                 final int serverNum, final int runNum) {
 
-    // TODO Update the progress panel - add to the JList, etc.
+    // Update the stateful data
+    ts.incrementCompletedCount();
+    ts.updateMinResponseTime(runTime);
+    ts.updateMaxResponseTime(runTime);
 
-    // Check the threshold
-    final boolean failed = (runTime > ((long) (ts.getFailureThreshold() * 1000L)));
-    if (failed) {
+    // Check the failure threshold
+    if (runTime > ((long) (ts.getFailureThreshold() * 1000L))) {
       // Handle the failure (the API call took too long)
       ts.incrementFailCount();
     }
@@ -452,7 +448,49 @@ public final class PerfTab
       perfTab.worstUrlTime = runTime;
       perfTab.tfWorstUrl.setText(url);
     }
+
+    // Update the output fields (bottom half of the panel)
+    final int totalCount = ts.getNumRuns() * ts.getNumThreads() * ts.getURLCount();
+    final double progress = 100.0 * (double) ts.getCompletedCount() / (double) totalCount;
+    final double failCount = 100.0 * (double) ts.getFailCount() / (double) ts.getCompletedCount();
+    perfTab.tfProgress.setText(Utility.toString(progress, 2) + "%");
+    perfTab.tfFailure.setText(Utility.toString(failCount, 2) + "%");
+    perfTab.tfMinTime.setText(Long.toString(ts.getMinResponseTime()));
+    perfTab.tfMaxTime.setText(Long.toString(ts.getMaxResponseTime()));
+
+    // Add the info to the output control - taOutput
+    String result = String.format("%d,%d,%s,%d\n", serverNum, runNum, url, runTime);
+    perfTab.addOutputEvent(result);
   }
+
+
+  /**
+   * Add an event to the text control.
+   *
+   * @param event the event description
+   */
+  private void addOutputEvent(final String event) {
+
+    // This method can get called from either the EDT or another
+    // thread, so handle both cases
+    if (SwingUtilities.isEventDispatchThread()) {
+      // We're on the EDT, so just add the line to the component
+      taOutput.append(event);
+    } else {
+      // Not on the EDT, so set the text on the EDT
+      try {
+        SwingUtilities.invokeAndWait(new Runnable() {
+          @Override
+          public void run() {
+            taOutput.append(event);
+          }
+        });
+      } catch (Exception ex) {
+        System.err.println("Exception adding event to perf tab: " + ex.getMessage());
+      }
+    }
+  }
+
 
   /**
    * Save the thread settings from the options in the UI.
@@ -463,7 +501,7 @@ public final class PerfTab
   private ThreadSettings getThreadSettings() throws Exception {
     
     // Populate our object with the data from the input section of the screen
-    ThreadSettings ts = new ThreadSettings();
+    final ThreadSettings ts = new ThreadSettings();
     ts.setMinDelay(Utility.getStringAsFloat(tfMinDelay.getText(), -1.0f, -1.0f));
     ts.setMaxDelay(Utility.getStringAsFloat(tfMaxDelay.getText(), -1.0f, -1.0f));
     ts.setNumThreads(Utility.getStringAsInteger(tfThreads.getText(), -1, -1));

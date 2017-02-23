@@ -245,16 +245,7 @@ public final class WindowState
   @Override
   public String toString()
   {
-    // Declare the string builder
-    StringBuilder sb = new StringBuilder(200);
-    
-    // Build the string
-    sb.append("X: ").append(x).append("  Y: ").append(y)
-      .append("  Height: ").append(height).append("  Width: ")
-      .append(width);
-    
-    // Return the string
-    return sb.toString();
+    return String.format("X: %d, Y: %d, Height: %d, Width: %d", x, y, height, width);
   }
   
   
@@ -392,15 +383,13 @@ public final class WindowState
    */
   private static int parseInteger(final Properties props, final String key)
   {
-    // Get the string
-    String val = (String) (props.get(key));
-    
-    // Check for null
-    if (key == null)
-    {
+    if (!props.containsKey(key)) {
       return 0;
     }
-    
+
+    // Get the string
+    String val = (String) (props.get(key));
+
     // Cast the string to an integer
     int num = 0;
     try

@@ -200,27 +200,4 @@ public final class SystemInfo
     
     return isWindows;
   }
-  
-  
-  /**
-   * Return the current version number as a string.
-   * 
-   * @return the current version number as a string
-   */
-  public static String getCurrentJavaVersionAsString()
-  {
-    // Check if this is initialized
-    if (!initialized)
-    {
-      initialize();
-    }
-    
-    // Build the string
-    StringBuilder sb = new StringBuilder(20);
-    sb.append(Integer.toString(majorVersion)).append('.')
-      .append(Integer.toString(minorVersion));
-    
-    // Return the string
-    return sb.toString();
-  }
 }

@@ -360,4 +360,59 @@ public final class Utility
     
     return false;
   }
+
+  /**
+   * Returns the input value as a string with a specified number of
+   * digits in the mantissa.
+   *
+   * @param value the input value
+   * @param nMantissaDigits the number of digits to the right of the decimal
+   * @return the score as a String
+   */
+  public static String toString(final double value, final int nMantissaDigits)
+  {
+    // Set reasonable bounds for the precision
+    final int nPrecision = Math.min(10, Math.max(0, nMantissaDigits));
+
+    // Construct the StringBuffer to hold the formatting string.
+    // This is necessary since the format string is variable due
+    // to the nMantissaDigits value.  The "-" means the string
+    // is left-justified.
+    StringBuilder buf = new StringBuilder(10);
+    buf.append("%-5.").append(Integer.toString(nPrecision))
+            .append("f");
+
+    // Construct the string and return it to the caller.
+    // Trim it since the output string may have trailing
+    // spaces.
+    final String result = String.format(buf.toString(), value).trim();
+
+    // Save the length
+    final int len = result.length();
+    if (len < 3)
+    {
+      return result;
+    }
+
+    // Check the position of any decimals
+    final int decPos = result.lastIndexOf('.');
+    if ((decPos < 0) || (decPos >= (len - 2)))
+    {
+      return result;
+    }
+
+    // Trim any trailing zeros, except one just after the decimal
+    int index = len - 1;
+    buf = new StringBuilder(result);
+    while ((index > (decPos + 1)) && (result.charAt(index) == '0'))
+    {
+      // Delete the character
+      buf.deleteCharAt(index);
+
+      // Decrement the index
+      --index;
+    }
+
+    return buf.toString();
+  }
 }
