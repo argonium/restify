@@ -11,7 +11,7 @@ import java.util.List;
  */
 public final class Snapshot {
 
-    static class Result {
+    public static class Result {
 
         private int threadNumber;
 

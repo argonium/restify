@@ -9,6 +9,8 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,6 +76,9 @@ public final class PerfTab
     super();
   }
 
+  /**
+   * Build the bottom panel (output fields).
+   */
   private void buildBottomPanel() {
     
     JPanel panel = new JPanel(new GridBagLayout());    
@@ -134,12 +139,113 @@ public final class PerfTab
     tfWorstUrl = new JTextField(20);
     tfWorstUrl.setEditable(false);
     panel.add(tfWorstUrl, c);
-    
+
+    // Add export buttons for CSV and JSON
+    c.gridy = 3;
+    c.gridx = 4;
+    c.gridwidth = 1;
+    c.fill = GridBagConstraints.HORIZONTAL;
+    JButton btnStart = new JButton("CSV Export");
+    btnStart.addActionListener(e -> csvExport());
+    panel.add(btnStart, c);
+
+    c.gridx = 5;
+    JButton btnStop = new JButton("JSON Export");
+    btnStop.addActionListener(e -> jsonExport());
+    panel.add(btnStop, c);
+
     panel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Results"));
     
     perfPanel.add(panel);
   }
-  
+
+  /**
+   * Export the last performance run snapshot to a CSV file.
+   */
+  private void csvExport() {
+
+    // If there's no snapshot, show an error
+    if ((snapshot == null) || (snapshot.getResults().isEmpty())) {
+      JOptionPane.showMessageDialog(perfPanel, "No snapshot to export", "Error", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+
+    // Build the output string
+    StringBuilder sb = new StringBuilder(100);
+    sb.append("Thread,Run,URL,Elapsed Time%n");
+    for (Snapshot.Result result : snapshot.getResults()) {
+      String line = String.format("%d,%d,%s,%d%n", result.getThreadNumber(), result.getRunNumber(),
+              result.getUrl(), result.getRunTime());
+      sb.append(line);
+    }
+
+    // Save to a file
+    saveToFile(sb.toString(), ".csv");
+  }
+
+  /**
+   * Export the last performance run snapshot to a JSON file.
+   */
+  private void jsonExport() {
+
+    // If there's no snapshot, show an error
+    if ((snapshot == null) || (snapshot.getResults().isEmpty())) {
+      JOptionPane.showMessageDialog(perfPanel, "No snapshot to export", "Error", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+
+    // TODO
+    StringBuilder sb = new StringBuilder(100);
+
+    // Save to a file
+    saveToFile(sb.toString(), ".json");
+  }
+
+  /**
+   * Save some text to a file with the designated extension.
+   *
+   * @param text the text to save to an output file
+   * @param extension the required extension
+   */
+  private void saveToFile(final String text, final String extension) {
+
+    // The user selects a file and then we save it
+    JFileChooser chooser = new JFileChooser();
+    int retrieval = chooser.showSaveDialog(perfPanel);
+    if (retrieval == JFileChooser.APPROVE_OPTION) {
+      try {
+        final File selectedFile = chooser.getSelectedFile();
+        final String fname = ensureFileExtension(selectedFile, extension);
+        FileWriter fw = new FileWriter(fname);
+        fw.write(text);
+        fw.close();
+      } catch (Exception ex) {
+        ex.printStackTrace();
+      }
+    }
+  }
+
+  /**
+   * Ensure a file output name ends with the specified extension.
+   *
+   * @param file the output file
+   * @param extension the extension
+   * @return the file with the indicated extension
+   */
+  private static String ensureFileExtension(final File file, final String extension) {
+
+    final String fname = file.getPath();
+    if (fname.endsWith(extension)) {
+      return fname;
+    }
+
+    // The filename does not end with the extension, so append it now
+    return (fname + extension);
+  }
+
+  /**
+   * Build the top panel (input fields).
+   */
   private void buildTopPanel() {
     
     JPanel panel = new JPanel(new GridBagLayout());    
