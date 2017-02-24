@@ -17,6 +17,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 
+import io.miti.restify.model.Snapshot;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -52,10 +53,14 @@ public final class PerfTab
   /** Record the amount of elapsed time for the worst-performing URL */
   private long worstUrlTime;
   
-  // The soaker threads
+  /** The array of soaker threads. */
   private final List<Soaker> soakers = new ArrayList<>();
-  
+
+  /** Store the name of the selected server. */
   private static String selectedServer;
+
+  /** The snapshot of the last performance run. */
+  private Snapshot snapshot = null;
 
   static {
     perfTab = new PerfTab();
@@ -382,7 +387,10 @@ public final class PerfTab
     
     // Clear the list of soakers
     soakers.clear();
-    
+
+    // Reset this value
+    worstUrlTime = 0L;
+
     // Check the input parameters
     ThreadSettings ts;
     try {
@@ -404,6 +412,14 @@ public final class PerfTab
       // An error occurred.  A message should have been shown to the user, so return.
       return;
     }
+
+    // Reset the snapshot and save the input values
+    snapshot = new Snapshot();
+    snapshot.setRunDate(Utility.getDateTimeString());
+    snapshot.setNumThreads(ts.getNumThreads());
+    snapshot.setNumRuns(ts.getNumRuns());
+    snapshot.setUrlCount(ts.getURLCount());
+    snapshot.setUrls(ts.getURLs());
 
     // Create the list of soakers
     final int numThreads = ts.getNumThreads();
@@ -463,18 +479,27 @@ public final class PerfTab
     ts.incrementCompletedCount();
     ts.updateMinResponseTime(runTime);
     ts.updateMaxResponseTime(runTime);
+    perfTab.snapshot.updateMinResponseTime(runTime);
+    perfTab.snapshot.updateMaxResponseTime(runTime);
 
     // Check the failure threshold
     if (runTime > ((long) (ts.getFailureThreshold() * 1000L))) {
       // Handle the failure (the API call took too long)
       ts.incrementFailCount();
+      perfTab.snapshot.incrementFailCount();
     }
 
     // Check if the runtime is the worst
     if (runTime > perfTab.worstUrlTime) {
       perfTab.worstUrlTime = runTime;
       perfTab.tfWorstUrl.setText(url);
+
+      perfTab.snapshot.setWorstUrl(url);
+      perfTab.snapshot.setWorstUrlTime(runTime);
     }
+
+    // Add the result
+    perfTab.snapshot.addResult(serverNum, runNum, url, runTime);
 
     // Update the output fields (bottom half of the panel)
     final int totalCount = ts.getNumRuns() * ts.getNumThreads() * ts.getURLCount();
