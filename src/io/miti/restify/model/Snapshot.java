@@ -64,7 +64,7 @@ public final class Snapshot {
 
     private List<String> urls = new ArrayList<>(10);
 
-    private List<Result> results;
+    private List<Result> results = new ArrayList<>(10);
 
     private String worstUrl;
 

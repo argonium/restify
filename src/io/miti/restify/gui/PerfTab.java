@@ -9,8 +9,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -202,43 +200,23 @@ public final class PerfTab
     c.gridx = 4;
     c.fill = GridBagConstraints.HORIZONTAL;
     JButton btnStart = new JButton("Start");
-    btnStart.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        startRun();
-      }
-    });
+    btnStart.addActionListener(e -> startRun());
     panel.add(btnStart, c);
     
     c.gridx = 5;
     JButton btnStop = new JButton("Stop");
-    btnStop.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        stopRun();
-      }
-    });
+    btnStop.addActionListener(e -> stopRun());
     panel.add(btnStop, c);
     
     c.gridx = 6;
     JButton btnReset = new JButton("Reset");
-    btnReset.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        resetRun();
-      }
-    });
+    btnReset.addActionListener(e -> resetRun());
     panel.add(btnReset, c);
     
     c.gridx = 7;
     JButton btnImport = new JButton("Import HAR");
     btnImport.setToolTipText("Import HAR data from the clipboard");
-    btnImport.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        importHAR();
-      }
-    });
+    btnImport.addActionListener(e -> importHAR());
     panel.add(btnImport, c);
     
     panel.setBorder(new TitledBorder(BorderFactory.createLineBorder(Color.BLACK),
@@ -252,6 +230,12 @@ public final class PerfTab
    * the Developer Tools.
    */
   private void importHAR() {
+
+    // Verify a server is selected
+    if (Utility.isStringEmpty(selectedServer)) {
+      JOptionPane.showMessageDialog(perfPanel, "Please select a server first from the Servers page", "Error", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
     
     // Get the raw URLs from the clipboard
     final List<String> urls = getURLsFromHar();
@@ -388,9 +372,6 @@ public final class PerfTab
     // Clear the list of soakers
     soakers.clear();
 
-    // Reset this value
-    worstUrlTime = 0L;
-
     // Check the input parameters
     ThreadSettings ts;
     try {
@@ -412,6 +393,9 @@ public final class PerfTab
       // An error occurred.  A message should have been shown to the user, so return.
       return;
     }
+
+    // Clear the output fields
+    clearOutputFields();
 
     // Reset the snapshot and save the input values
     snapshot = new Snapshot();
@@ -531,12 +515,7 @@ public final class PerfTab
     } else {
       // Not on the EDT, so set the text on the EDT
       try {
-        SwingUtilities.invokeAndWait(new Runnable() {
-          @Override
-          public void run() {
-            taOutput.append(event);
-          }
-        });
+        SwingUtilities.invokeAndWait(() -> taOutput.append(event));
       } catch (Exception ex) {
         System.err.println("Exception adding event to perf tab: " + ex.getMessage());
       }
@@ -619,8 +598,29 @@ public final class PerfTab
   public static void setSelectedServer(final String url) {
     selectedServer = url;
   }
-  
+
+  /**
+   * If the user clicks the Reset button, clear the output fields and reset the
+   * input fields to their default.
+   */
   private void resetFields() {
+
+    // Clear the output fields on the screen
+    clearOutputFields();
+
+    // Set the default input values
+    tfMinDelay.setText("1");
+    tfMaxDelay.setText("3");
+    tfThreads.setText("6");
+    tfRuns.setText("3");
+    tfThreshold.setText("10");
+  }
+
+  /**
+   * Clear just the output fields.
+   */
+  private void clearOutputFields() {
+
     // Clear the output
     taOutput.setText("");
     tfProgress.setText("");
@@ -628,17 +628,10 @@ public final class PerfTab
     tfMinTime.setText("");
     tfMaxTime.setText("");
     tfWorstUrl.setText("");
-    
-    // Set the default input values
-    tfMinDelay.setText("2");
-    tfMaxDelay.setText("5");
-    tfThreads.setText("10");
-    tfRuns.setText("5");
-    tfThreshold.setText("10");
 
     worstUrlTime = 0L;
   }
-  
+
   public static JPanel getPanel() {
     return perfTab.perfPanel;
   }
