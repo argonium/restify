@@ -172,7 +172,7 @@ public final class Utility
    */
   public static boolean isStringEmpty(final String msg)
   {
-    return ((msg == null) || (msg.length() == 0));
+    return ((msg == null) || msg.isEmpty());
   }
   
   

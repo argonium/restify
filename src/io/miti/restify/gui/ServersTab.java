@@ -41,10 +41,16 @@ public final class ServersTab
     serversTab.buildPage();
   }
 
+  /**
+   * Default constructor.
+   */
   private ServersTab() {
     super();
   }
-  
+
+  /**
+   * Build the UI layout.
+   */
   private void buildPage() {
     
     String[] servers = new String[1];
@@ -116,14 +122,20 @@ public final class ServersTab
     
     updateButtons();
   }
-  
+
+  /**
+   * Enable or disable the buttons based on whether we have any servers in the list.
+   */
   private void updateButtons() {
     final boolean hasServers = !(ServerCache.getInstance().getMap().isEmpty());
     btnSelect.setEnabled(hasServers);
     btnEdit.setEnabled(hasServers);
     btnDelete.setEnabled(hasServers);
   }
-  
+
+  /**
+   * Select a server from the list.
+   */
   private void selectServer() {
     
     // Get the selected server name
@@ -140,10 +152,18 @@ public final class ServersTab
     PerfTab.setSelectedServer(url);
   }
 
+  /**
+   * Add a new server to the list.
+   */
   private void addServer() {
     getServerInfo(true);
   }
-  
+
+  /**
+   * Get information on a server (new or existing).
+   *
+   * @param addServer whether we're adding a server
+   */
   private void getServerInfo(final boolean addServer) {
     
     // Check the selected server name
@@ -169,31 +189,71 @@ public final class ServersTab
              JOptionPane.QUESTION_MESSAGE);
     
     // If the user pressed OK, and neither field is empty, then update the combo box
-    if (result == JOptionPane.OK_OPTION) {      
-      if (!Utility.anyAreEmpty(tfName.getText(), tfUrl.getText())) {
-        
-        // If editing, remove the map entry by name, in case the user renamed
-        // the server
-        if (!addServer) {
-          ServerCache.getInstance().deleteServer(selectedName);
+    if (result == JOptionPane.OK_OPTION) {
+      final String url = processUrl(tfUrl.getText());
+      if (!Utility.anyAreEmpty(tfName.getText(), url)) {
+
+        // Ensure the URL starts with http:// or https://
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+          JOptionPane.showMessageDialog(serversPanel, "URL must start with http:// or https://",
+                  "Error in URL", JOptionPane.ERROR_MESSAGE);
+        } else {
+          // If editing, remove the map entry by name, in case the user renamed
+          // the server
+          if (!addServer) {
+            ServerCache.getInstance().deleteServer(selectedName);
+          }
+
+          // Update the list in the combo box and in the cache
+          ServerCache.getInstance().add(tfName.getText(), url);
+          updateCombo();
         }
-        
-        ServerCache.getInstance().add(tfName.getText(), tfUrl.getText());
-        updateCombo();
+      } else {
+        JOptionPane.showMessageDialog(serversPanel,
+                "Skipping the save since one or more fields are empty",
+                "Error", JOptionPane.ERROR_MESSAGE);
       }
     }
   }
 
+  /**
+   * If the user entered a trailing "/" at the end of the URL, remove it.
+   *
+   * @param inputUrl the input URL
+   * @return the cleaned-up version
+   */
+  private static String processUrl(final String inputUrl) {
+
+    // Check the input
+    if (Utility.isStringEmpty(inputUrl)) {
+      return null;
+    }
+
+    // If it ends with a "/" then strip it off (when we import URLs
+    // from a HAR session, we keep any leading "/" after the server
+    // name and before the API call)
+    return (inputUrl.endsWith("/") ? inputUrl.substring(0, inputUrl.length() - 1).trim() : inputUrl.trim());
+  }
+
+  /**
+   * Edit a server's information.
+   */
   private void editServer() {
     getServerInfo(false);
   }
 
+  /**
+   * Delete a server from the list.
+   */
   private void deleteServer() {
     final String selectedName = (String) cbServers.getSelectedItem();
     ServerCache.getInstance().deleteServer(selectedName);
     updateCombo();
   }
-  
+
+  /**
+   * Update the list in the combo box.
+   */
   private void updateCombo() {
     
     // Save the selected index, and remove everything from the combo
@@ -223,11 +283,19 @@ public final class ServersTab
     // Update the buttons
     updateButtons();
   }
-  
+
+  /**
+   * Return the one instance of this panel.
+   *
+   * @return the one instance of this panel
+   */
   public static JPanel getPanel() {
     return serversTab.serversPanel;
   }
 
+  /**
+   * When a URL in the list is highlighted, show the URL on the panel.
+   */
   private void updateDisplayedUrl() {
     final String selectedName = (String) cbServers.getSelectedItem();
     String url = ServerCache.getInstance().getServerUrl(selectedName);

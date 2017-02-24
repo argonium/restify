@@ -441,9 +441,11 @@ public final class PerfTab
       return null;
     } else {
 
-      // The user has auto-login disabled, and has not manually logged in
-      JOptionPane.showMessageDialog(perfPanel, "You are not signed in, and auto-login is unchecked.\nPlease log in first.", "Error", JOptionPane.ERROR_MESSAGE);
-      return null;
+      // The user has auto-login disabled, and has not manually logged in.  Assume
+      // this means the user does not need to log into the server before calling
+      // URLs for that server.  Return something other than null (null === error).
+      // JOptionPane.showMessageDialog(perfPanel, "You are not signed in, and auto-login is unchecked.\nPlease log in first.", "Error", JOptionPane.ERROR_MESSAGE);
+      return "";
     }
   }
   
