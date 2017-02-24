@@ -50,7 +50,14 @@ public final class Soaker extends Thread {
         // Sleep for some duration (between min and max)
         if (!haltProcess) {
           final int sleepDuration = getSleepDuration(ts.getMinDelay(), ts.getMaxDelay());
-          Utility.sleep(sleepDuration);
+          if (sleepDuration > 0) {
+            Utility.sleep(sleepDuration);
+          }
+        }
+
+        // Check if the execution has been stopped
+        if (haltProcess) {
+          break;
         }
 
         // Get the next URL to call
@@ -66,7 +73,7 @@ public final class Soaker extends Thread {
         final long timeDelta = System.currentTimeMillis() - startTime;
 
         // If there was an error, stop the test
-        haltProcess = !result;
+        haltProcess = haltProcess || !result;
 
         // Log the run
         PerfTab.updateProgress(ts, url, timeDelta, serverNum, i + 1);

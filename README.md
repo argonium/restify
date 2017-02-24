@@ -68,11 +68,13 @@ This screen contains a number of input and output fields.  The input fields are:
 
 * The list of URLs to use for the performance test (any lines starting with ";" are skipped)
 * "Min Delay": the minimum amount of time to wait before proceeding to the next URL in the list during a run
+  (supports floating-point numbers)
 * "Max Delay": the maximum amount of time to wait before proceeding to the next URL in the list during a run
+  (supports floating-point numbers)
 * "# Threads": the number of users to simulate (one thread per user)
 * "# Runs": the number of runs to perform for each user
 * "Failure Threshold": if an API call takes longer than this limit, it's considered a performance failure;
-  used to compute the "Failure Rate" in the output section
+  used to compute the "Failure Rate" in the output section (supports floating-point numbers)
 
 The buttons are:
 
