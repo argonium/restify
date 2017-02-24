@@ -110,14 +110,14 @@ The screen contains a "Clear" button to clear the logged information.
 
 # Additional Information
 
-Nemo requires Java 8 or later to build and execute.
+Restify requires Java 8 or later to build and execute.
 
 There is currently no help file, but there is tooltip text for most of the controls, so the interface should be easy to understand.
 
-To run the appication, build it via Ant ('ant clean dist'), and then open via 'java -jar restify.jar' (or double-click nemo.jar).
+To run the appication, build it via Ant ('ant clean dist'), and then open via 'java -jar restify.jar' (or double-click restify.jar).
 The required dependencies need to be in the same folder as restify.jar (see the next paragraph).
 
 The required dependencies are in the libs folder, consisting of Unirest (HTTP client), JSON and their respective dependencies.
 These libraries are copyright their respective owners.
 
-The source code is released under the MIT license, with the exception of the included JAR libraries.
+The source code is released under the MIT license, with the exception of the included third-party JAR libraries.
