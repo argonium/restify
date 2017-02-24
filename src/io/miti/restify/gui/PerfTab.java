@@ -194,11 +194,12 @@ public final class PerfTab
       return;
     }
 
-    // TODO
-    StringBuilder sb = new StringBuilder(100);
+    // Convert the snapshot to a JSON string
+    final JSONObject obj = new JSONObject(snapshot);
+    final String text = obj.toString(4);
 
     // Save to a file
-    saveToFile(sb.toString(), ".json");
+    saveToFile(text, ".json");
   }
 
   /**
