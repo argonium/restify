@@ -397,10 +397,10 @@ public final class PerfTab
       return;
     }
 
-    // Get the session cookie for the soaker's API calls
+    // Get the session cookie for the soaker's API calls (a session cookie is not
+    // required if the server doesn't need authentication for the API calls made)
     final String cookie = getSessionCookie();
     if (cookie == null) {
-      // TODO Authentication can be optional
       // An error occurred.  A message should have been shown to the user, so return.
       return;
     }
