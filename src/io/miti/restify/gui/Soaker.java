@@ -9,21 +9,22 @@ import io.miti.restify.model.ThreadSettings;
 import io.miti.restify.util.ResponseCodeCache;
 import io.miti.restify.util.Utility;
 
+/**
+ * This class represents a single thread used for the performance
+ * test (called by PerfTab).
+ */
 public final class Soaker extends Thread {
   
   private final int serverNum;
   
   private final ThreadSettings ts;
 
-  private final String cookie;
-
   private boolean haltProcess = false;
 
-  public Soaker(final int serverNum, final ThreadSettings ts, final String cookie) {
+  public Soaker(final int serverNum, final ThreadSettings ts) {
     super("Soaker-" + serverNum);
     this.serverNum = serverNum;
     this.ts = ts;
-    this.cookie = cookie;
   }
 
   /**
@@ -85,7 +86,7 @@ public final class Soaker extends Thread {
       return null;
     }
 
-    // If the hostname neds with a "/", return everything in the string before it
+    // If the hostname ends with a "/", return everything in the string before it
     if (hostname.endsWith("/")) {
       return hostname.substring(0, hostname.length() - 1);
     }
@@ -105,7 +106,7 @@ public final class Soaker extends Thread {
 
     boolean result = true;
     try {
-      // Make the URL call
+      // Make the URL call (Unirest stores the cookie from the earlier login call)
       final HttpResponse<String> response = Unirest.get(url).asString();
 
       // Check the response status
@@ -116,7 +117,7 @@ public final class Soaker extends Thread {
               ResponseCodeCache.getCache().getResponseMessage(status));
       ConsoleTab.addEvent(serverNum, runIndex, event);
 
-      // Check the status
+      // Check the status (if it's not a 2xx code, there was some failure)
       result = ((status >= 200) && (status < 300));
     } catch (Exception ue) {
 

@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+/**
+ * The list of servers used by the Servers tab.
+ */
 public final class ServerCache {
   
   /** The one instance of this class. */

@@ -24,6 +24,9 @@ import io.miti.restify.model.ThreadSettings;
 import io.miti.restify.util.Utility;
 import io.miti.restify.util.WindowState;
 
+/**
+ * The is the Performance tab class for the UI.
+ */
 public final class PerfTab
 {
   private static final PerfTab perfTab;
@@ -238,8 +241,12 @@ public final class PerfTab
     
     perfPanel.add(panel);
   }
-  
-  protected void importHAR() {
+
+  /**
+   * Import API calls from a HAR session (e.g., from Chrome's "Network" tab in
+   * the Developer Tools.
+   */
+  private void importHAR() {
     
     // Get the raw URLs from the clipboard
     final List<String> urls = getURLsFromHar();
@@ -264,8 +271,13 @@ public final class PerfTab
       JOptionPane.showMessageDialog(perfPanel, "No matching URLs found in the HAR data", "Warning", JOptionPane.INFORMATION_MESSAGE);
     }
   }
-  
-  private void filterURLsFromHAR(List<String> urls) {
+
+  /**
+   * Only include URLs (in the HAR) if they start with the selected server URL.
+   *
+   * @param urls the list of URLs to filter
+   */
+  private void filterURLsFromHAR(final List<String> urls) {
     
     // This holds the modified URLs we want to keep
     List<String> targets = new ArrayList<>(20);
@@ -296,6 +308,11 @@ public final class PerfTab
     }
   }
 
+  /**
+   * Retrieve the URLs from the HAR (in the clipboard).
+   *
+   * @return the list of URLs found in the HAR session
+   */
   private List<String> getURLsFromHar() {
     
     // Import any HAR data from the clip board
@@ -339,6 +356,13 @@ public final class PerfTab
     return urls;
   }
 
+  /**
+   * Determine if a URL should be kept (exclude some common URL-types that we don't care
+   * about, such as images and CSS).
+   *
+   * @param url the URL to check
+   * @return whether we should keep the URL
+   */
   private static boolean includeUrl(final String url) {
     if ((url == null) || url.trim().isEmpty()) {
       return false;
@@ -376,6 +400,7 @@ public final class PerfTab
     // Get the session cookie for the soaker's API calls
     final String cookie = getSessionCookie();
     if (cookie == null) {
+      // TODO Authentication can be optional
       // An error occurred.  A message should have been shown to the user, so return.
       return;
     }
@@ -383,7 +408,7 @@ public final class PerfTab
     // Create the list of soakers
     final int numThreads = ts.getNumThreads();
     for (int i = 0; i < numThreads; ++i) {
-      soakers.add(new Soaker(i + 1, ts, cookie));
+      soakers.add(new Soaker(i + 1, ts));
     }
     
     // Start the list of threads
@@ -594,7 +619,10 @@ public final class PerfTab
   public static String getURLText() {
     return perfTab.taUrls.getText();
   }
-  
+
+  /**
+   * Load the list of URLs from the properties file.
+   */
   private void loadStoredURLs() {
     
     // Get any saved URL text from the properties file

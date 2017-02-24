@@ -316,7 +316,7 @@ public final class Logger
     }
     else if (logger.logFileMode == 2)
     {
-      // Determine whether to append to the ouput file.  We only
+      // Determine whether to append to the output file.  We only
       // overwrite if logOverwrite is true and no data has been
       // written yet to the output stream (for this instance).
       // So, we append if the negation of that conditional is true.

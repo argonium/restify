@@ -12,6 +12,9 @@ import javax.swing.SwingUtilities;
 
 import io.miti.restify.util.Utility;
 
+/**
+ * This is the Console tab for the UI.
+ */
 public final class ConsoleTab
 {
   private static final ConsoleTab consoleTab;

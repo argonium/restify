@@ -23,7 +23,7 @@ public final class Restify
   /**
    * The name of the properties file.
    */
-  public static final String PROPS_FILE_NAME = "restify.prop";
+  private static final String PROPS_FILE_NAME = "restify.prop";
   
   /**
    * The application frame.

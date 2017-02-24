@@ -9,7 +9,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Store information about the main window.
+ * Store information about the main window (coordinates, size, etc.).
  */
 public final class WindowState
 {
@@ -100,7 +100,7 @@ public final class WindowState
    * 
    * @return the height
    */
-  public int getHeight()
+  private int getHeight()
   {
     if (height <= 0)
     {
@@ -127,7 +127,7 @@ public final class WindowState
    * 
    * @return the width
    */
-  public int getWidth()
+  private int getWidth()
   {
     if (width <= 0)
     {

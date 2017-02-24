@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * Encapsulate the thread settings passed from PerfTab to Soaker, and
+ * in the callback from Soaker to PerfTab (to update the progress).
+ *
  * @author mike
  */
 public final class ThreadSettings

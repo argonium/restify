@@ -51,7 +51,7 @@ public final class SystemInfo
   /**
    * Initialize the member fields.
    */
-  public static void initialize()
+  private static void initialize()
   {
     // Whether we've already initialized the data
     if (initialized)

@@ -32,6 +32,9 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 
 import io.miti.restify.util.Utility;
 
+/**
+ * This is the Login tab for the UI.
+ */
 public final class LoginTab
 {
   private static final LoginTab loginTab;

@@ -10,6 +10,9 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.SoftBevelBorder;
 
+/**
+ * Encapsulate the status bar at the bottom of the application frame.
+ */
 public final class StatusBar extends JPanel {
 
   private static final long serialVersionUID = 1L;

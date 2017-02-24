@@ -18,6 +18,9 @@ import javax.swing.JTextField;
 import io.miti.restify.util.ServerCache;
 import io.miti.restify.util.Utility;
 
+/**
+ * This is the Servers tab class for the UI.
+ */
 public final class ServersTab
 {
   private static final String NO_OPTION = "<None Available>";
