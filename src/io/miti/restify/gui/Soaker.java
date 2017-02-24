@@ -46,9 +46,17 @@ public final class Soaker extends Thread {
       // Iterate over the list of URLs
       final Iterator<String> urls = ts.getURLs();
       while (urls.hasNext() && !haltProcess) {
+
+        // Sleep for some duration (between min and max)
+        if (!haltProcess) {
+          final int sleepDuration = getSleepDuration(ts.getMinDelay(), ts.getMaxDelay());
+          Utility.sleep(sleepDuration);
+        }
+
+        // Get the next URL to call
         final String url = urls.next();
         
-        // Make the call, and compare the execution time against the failure threshold
+        // Record the start time, so we can later compute the amount of elapsed time
         final long startTime = System.currentTimeMillis();
 
         // Make the call, and check for an error
@@ -62,14 +70,31 @@ public final class Soaker extends Thread {
 
         // Log the run
         PerfTab.updateProgress(ts, url, timeDelta, serverNum, i + 1);
-        
-        // Sleep for some duration (between min and max)
-        if (!haltProcess) {
-          int sleepDuration = ThreadLocalRandom.current().nextInt((int) (ts.getMinDelay() * 1000), ((int) (ts.getMaxDelay() * 1000)) + 1);
-          Utility.sleep(sleepDuration);
-        }
       }
     }
+  }
+
+  /**
+   * Get the amount of time to sleep.
+   *
+   * @param minDelay the minimum amount of time to sleep (in seconds)
+   * @param maxDelay the maximum amount of time to sleep (in seconds)
+   * @return the amount of time to sleep (in milliseconds)
+   */
+  private static int getSleepDuration(final float minDelay, final float maxDelay) {
+
+    // Convert the input parameters from seconds to milliseconds
+    final int min = (int) (minDelay * 1000.0f);
+    final int max = (int) (maxDelay * 1000.0f);
+
+    // Check for zero, or equal values
+    if ((max == 0) || (min == max)) {
+      return max;
+    }
+
+    // Return a random number in the inclusive range (add 1 to max since nextInt is exclusive
+    // on the maximum value parameter)
+    return ThreadLocalRandom.current().nextInt(min, max + 1);
   }
 
   /**
